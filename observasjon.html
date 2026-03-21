@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="logo-illustrasjon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Observasjonsskjema – barnehagekassa.no</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", Arial, sans-serif; background: #f5f2ed; color: #1a1a1a; min-height: 100vh; }
+
+    /* HEADER */
+    .site-header { background: white; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e8e3db; }
+    .site-header img { height: 44px; width: auto; display: block; }
+    nav { display: flex; gap: 24px; align-items: center; }
+    nav a { color: #444; text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: color 0.15s; }
+    nav a:hover { color: #3d7272; }
+
+    /* HERO */
+    .page-hero { background: #3d7272; color: white; padding: 52px 32px 44px; text-align: center; }
+    .page-hero h1 { font-size: 2rem; font-weight: 900; font-family: "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif; margin-bottom: 10px; }
+    .page-hero p { color: rgba(255,255,255,0.90); font-size: 1rem; max-width: 560px; margin: 0 auto; line-height: 1.6; }
+
+    /* PAGE */
+    .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* METODEVELGER */
+    .metode-intro { text-align: center; margin-bottom: 32px; }
+    .metode-intro h2 { font-size: 1.25rem; font-weight: 800; font-family: "Plus Jakarta Sans","Segoe UI",Arial,sans-serif; color: #2a5252; margin-bottom: 8px; }
+    .metode-intro p { color: #666; font-size: 0.95rem; line-height: 1.6; }
+
+    .metode-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 40px; }
+    .metode-kort {
+      background: white; border-radius: 14px; padding: 22px 20px;
+      border: 2px solid transparent; cursor: pointer;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+      text-align: left;
+    }
+    .metode-kort:hover { border-color: #3d7272; box-shadow: 0 8px 28px rgba(61,114,114,0.14); transform: translateY(-2px); }
+    .metode-kort.aktiv { border-color: #3d7272; background: #f0f9f9; box-shadow: 0 4px 18px rgba(61,114,114,0.15); }
+    .metode-ikon { width: 40px; height: 40px; background: #e4f2f2; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+    .metode-ikon svg { width: 22px; height: 22px; }
+    .metode-navn { font-size: 0.97rem; font-weight: 800; color: #1a1a1a; margin-bottom: 5px; }
+    .metode-beskrivelse { font-size: 0.82rem; color: #666; line-height: 1.5; }
+
+    /* SKJEMA SEKSJONER */
+    .skjema-seksjon { display: none; }
+    .skjema-seksjon.synlig { display: block; }
+
+    .skjema-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .skjema-tittel { font-size: 1.3rem; font-weight: 800; font-family: "Plus Jakarta Sans","Segoe UI",Arial,sans-serif; color: #2a5252; display: flex; align-items: center; gap: 10px; }
+    .skjema-tittel::before { content: ""; display: inline-block; width: 4px; height: 1.3rem; background: #3d7272; border-radius: 2px; }
+    .skjema-ingress { font-size: 0.88rem; color: #888; line-height: 1.5; margin-bottom: 24px; padding: 12px 16px; background: #f8fafa; border-radius: 10px; border-left: 3px solid #3d7272; }
+
+    /* METADATAFELT */
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+    .meta-grid.tre { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 560px) { .meta-grid, .meta-grid.tre { grid-template-columns: 1fr; } }
+    .felt { display: flex; flex-direction: column; gap: 5px; }
+    .felt label { font-size: 0.78rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+    .felt input, .felt select, .felt textarea {
+      padding: 9px 12px; border: 1.5px solid #e0dbd3; border-radius: 8px;
+      font-size: 0.93rem; font-family: inherit; background: white; color: #1a1a1a;
+      outline: none; transition: border-color 0.15s, box-shadow 0.15s; width: 100%;
+    }
+    .felt input:focus, .felt select:focus, .felt textarea:focus {
+      border-color: #3d7272; box-shadow: 0 0 0 3px rgba(61,114,114,0.10);
+    }
+    .felt textarea { resize: vertical; min-height: 90px; }
+
+    /* TABELL */
+    .tabell-wrap { border-radius: 12px; overflow: hidden; border: 1.5px solid #e8e3db; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; background: white; }
+    thead th { background: #f0f9f9; padding: 11px 14px; font-size: 0.78rem; font-weight: 700; color: #3d7272; text-transform: uppercase; letter-spacing: 0.5px; text-align: left; border-bottom: 1.5px solid #e4f2f2; }
+    tbody td { padding: 10px 12px; border-bottom: 1px solid #f0f4f4; vertical-align: top; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody td textarea, tbody td input {
+      width: 100%; padding: 7px 10px; border: 1.5px solid #e8e3db; border-radius: 6px;
+      font-size: 0.88rem; font-family: inherit; background: #fafafa; resize: vertical;
+      outline: none; transition: border-color 0.15s;
+    }
+    tbody td textarea { min-height: 70px; }
+    tbody td textarea:focus, tbody td input:focus { border-color: #3d7272; background: white; }
+    .rad-nr { width: 36px; text-align: center; font-size: 0.8rem; color: #bbb; font-weight: 700; padding-top: 14px !important; }
+    .slett-rad { width: 36px; text-align: center; }
+    .slett-rad button { background: none; border: none; cursor: pointer; color: #ccc; font-size: 1.1rem; padding: 4px; transition: color 0.15s; }
+    .slett-rad button:hover { color: #e05a5a; }
+
+    /* KNAPPER */
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px; border-radius: 100px; font-size: 0.88rem; font-weight: 700; cursor: pointer; border: none; transition: transform 0.15s, box-shadow 0.15s; text-decoration: none; font-family: inherit; }
+    .btn-primary { background: #3d7272; color: white; box-shadow: 0 2px 10px rgba(61,114,114,0.25); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(61,114,114,0.32); }
+    .btn-secondary { background: white; color: #3d7272; border: 1.5px solid #3d7272; }
+    .btn-secondary:hover { background: #f0f9f9; }
+    .btn-ghost { background: #f5f2ed; color: #444; }
+    .btn-ghost:hover { background: #ede8e1; }
+    .knapp-rad { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
+
+    /* KORT WRAPPER */
+    .kort { background: white; border-radius: 14px; border: 1px solid #e8e3db; padding: 24px 26px; margin-bottom: 20px; }
+    .kort-tittel { font-size: 0.97rem; font-weight: 800; color: #2a5252; margin-bottom: 14px; font-family: "Plus Jakarta Sans","Segoe UI",Arial,sans-serif; }
+
+    /* SOSIOGRAM */
+    .barn-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .barn-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #e4f2f2; color: #2a5252; border-radius: 100px;
+      padding: 5px 12px; font-size: 0.85rem; font-weight: 600;
+    }
+    .barn-chip button { background: none; border: none; cursor: pointer; color: #888; font-size: 0.9rem; line-height: 1; padding: 0 0 0 2px; }
+    .barn-chip button:hover { color: #e05a5a; }
+    .legg-til-barn { display: flex; gap: 8px; margin-bottom: 20px; }
+    .legg-til-barn input { flex: 1; padding: 8px 12px; border: 1.5px solid #e0dbd3; border-radius: 8px; font-size: 0.92rem; font-family: inherit; outline: none; }
+    .legg-til-barn input:focus { border-color: #3d7272; }
+
+    .interaksjon-rad { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px; }
+    @media (max-width: 560px) { .interaksjon-rad { grid-template-columns: 1fr 1fr; } }
+    .interaksjon-rad select { padding: 8px 10px; border: 1.5px solid #e0dbd3; border-radius: 8px; font-size: 0.88rem; font-family: inherit; background: white; outline: none; }
+    .interaksjon-rad select:focus { border-color: #3d7272; }
+
+    .matrise-wrap { overflow-x: auto; margin-top: 20px; }
+    .matrise { border-collapse: collapse; font-size: 0.82rem; min-width: 100%; }
+    .matrise th, .matrise td { padding: 8px 10px; border: 1px solid #e4f2f2; text-align: center; }
+    .matrise th { background: #f0f9f9; color: #3d7272; font-weight: 700; }
+    .matrise .rad-hode { background: #f0f9f9; font-weight: 700; color: #2a5252; text-align: left; }
+    .matrise .positiv { background: #e8f5e9; color: #2e7d32; font-weight: 700; border-radius: 4px; }
+    .matrise .negativ { background: #fdecea; color: #c62828; font-weight: 700; border-radius: 4px; }
+    .matrise .noytr { background: #fff8e1; color: #f57f17; font-weight: 700; border-radius: 4px; }
+
+    /* TIDSSAMPLING */
+    .tidspunkt-grid { display: flex; flex-direction: column; gap: 6px; }
+    .tidspunkt-rad {
+      display: grid; grid-template-columns: 80px 1fr 1fr 1fr;
+      gap: 8px; align-items: start;
+    }
+    @media (max-width: 600px) { .tidspunkt-rad { grid-template-columns: 60px 1fr; } }
+    .tidspunkt-rad .tid-label { padding: 9px 0 0; font-size: 0.88rem; font-weight: 700; color: #3d7272; }
+
+    /* SPRÅKKARTLEGGING */
+    .sprak-omrade { margin-bottom: 20px; }
+    .sprak-omrade-tittel {
+      font-size: 0.92rem; font-weight: 800; color: #2a5252;
+      padding: 10px 14px; background: #f0f9f9; border-radius: 8px 8px 0 0;
+      border: 1px solid #e4f2f2; border-bottom: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sprak-omrade-tittel span { font-size: 0.75rem; font-weight: 600; color: #888; margin-left: auto; }
+    .sprak-item {
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: center; gap: 12px;
+      padding: 10px 14px; background: white;
+      border: 1px solid #e4f2f2; border-top: none;
+    }
+    .sprak-item:last-of-type { border-radius: 0 0 8px 8px; }
+    .sprak-item-tekst { font-size: 0.88rem; color: #333; line-height: 1.4; }
+    .sprak-status { display: flex; gap: 6px; }
+    .sprak-status label { display: flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .sprak-status input[type=radio] { accent-color: #3d7272; }
+    .status-observert { color: #2e7d32; }
+    .status-utvikling { color: #e65100; }
+    .status-ikke { color: #888; }
+
+    .alder-badge { display: inline-block; padding: 2px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; margin-left: 8px; }
+    .alder-2 { background: #e3f2fd; color: #1565c0; }
+    .alder-3 { background: #fce4ec; color: #c62828; }
+    .alder-4 { background: #e8f5e9; color: #2e7d32; }
+
+    /* PRINT FORHÅNDSVISNING */
+    .print-melding { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 10px; padding: 12px 16px; font-size: 0.88rem; color: #2e7d32; display: none; margin-top: 12px; }
+
+    /* FOOTER */
+    footer { text-align: center; padding: 28px; font-size: 0.8rem; color: #bbb; border-top: 1px solid #e8e3db; }
+
+    /* MOBILMENY */
+    .burger { display: none; flex-direction: column; gap: 5px; width: 36px; height: 36px; background: none; border: none; cursor: pointer; padding: 4px; }
+    .burger span { display: block; width: 20px; height: 2px; background: #444; border-radius: 2px; transition: transform 0.2s, opacity 0.2s; }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobil-nav { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: white; border-bottom: 2px solid #e8e3db; box-shadow: 0 8px 24px rgba(0,0,0,0.10); z-index: 100; }
+    .mobil-nav a { padding: 13px 24px; color: #444; text-decoration: none; font-size: 0.95rem; font-weight: 500; border-bottom: 1px solid #f0ece6; }
+    .mobil-nav a:last-child { border-bottom: none; }
+    .mobil-nav a:hover { background: #f5f9f9; color: #3d7272; }
+    .mobil-nav.open { display: flex; }
+    @media (max-width: 560px) {
+      .site-header { padding: 12px 20px; position: relative; }
+      nav { display: none; }
+      .burger { display: flex; }
+      .page-hero h1 { font-size: 1.5rem; }
+    }
+
+    /* PRINT */
+    @media print {
+      body { background: white; font-size: 11pt; }
+      .site-header, .metode-grid, .metode-intro, .knapp-rad, .btn, footer, .burger, .mobil-nav, .skjema-header .btn, .slett-rad, .legg-til-barn, .skjema-seksjon:not(.synlig), .barn-chips button, .print-melding { display: none !important; }
+      .page { padding: 0; max-width: 100%; }
+      .skjema-seksjon.synlig { display: block !important; }
+      .kort { border: 1px solid #ccc; page-break-inside: avoid; margin-bottom: 14px; }
+      .tabell-wrap { border: 1px solid #ccc; }
+      .page-hero { background: #3d7272 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 24px 32px; }
+      table { page-break-inside: avoid; }
+      input, textarea, select { border: 1px solid #ccc !important; background: white !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="site-header">
+  <a href="index.html"><img src="logo-illustrasjon.png" alt="barnehagekassa.no"></a>
+  <nav>
+    <a href="index.html">Hjem</a>
+    <a href="index.html#kalkulatorer">Kalkulatorer</a>
+    <a href="index.html#maler">Maler</a>
+    <a href="index.html#ressurser">Ressurser</a>
+    <a href="om-meg.html">Om siden</a>
+  </nav>
+  <button class="burger" id="burgerBtn" aria-label="Meny">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="mobil-nav" id="mobilNav">
+    <a href="index.html">Hjem</a>
+    <a href="index.html#kalkulatorer">Kalkulatorer</a>
+    <a href="index.html#maler">Maler</a>
+    <a href="index.html#ressurser">Ressurser</a>
+    <a href="om-meg.html">Om siden</a>
+  </div>
+</div>
+
+<div class="page-hero">
+  <h1>Observasjonsskjema</h1>
+  <p>Velg observasjonsmetode, fyll ut skjemaet og skriv ut eller lagre som PDF. Tilpasset barnehagens pedagogiske arbeid.</p>
+</div>
+
+<div class="page">
+
+  <!-- METODEVELGER -->
+  <div id="metodevelger">
+    <div class="metode-intro">
+      <h2>Hvilken metode vil du bruke?</h2>
+      <p>Velg metode ut fra hva du ønsker å finne ut. Skjemaet tilpasses metoden du velger.</p>
+    </div>
+    <div class="metode-grid">
+
+      <div class="metode-kort" onclick="velgMetode('lopende')">
+        <div class="metode-ikon">
+          <svg viewBox="0 0 22 22" fill="none"><rect x="3" y="2" width="16" height="18" rx="2.5" stroke="#3d7272" stroke-width="1.6"/><line x1="7" y1="7" x2="15" y2="7" stroke="#3d7272" stroke-width="1.4" stroke-linecap="round"/><line x1="7" y1="11" x2="15" y2="11" stroke="#3d7272" stroke-width="1.4" stroke-linecap="round"/><line x1="7" y1="15" x2="11" y2="15" stroke="#3d7272" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+        <div class="metode-navn">Løpende protokoll</div>
+        <div class="metode-beskrivelse">Intensivobservasjon av ett barn over kort tid. Noterer fakta og tolking i to kolonner.</div>
+      </div>
+
+      <div class="metode-kort" onclick="velgMetode('praksisfortelling')">
+        <div class="metode-ikon">
+          <svg viewBox="0 0 22 22" fill="none"><path d="M4 4h14v10H4z" rx="1.5" stroke="#3d7272" stroke-width="1.6" fill="none"/><path d="M8 17l3 3 3-3" stroke="#3d7272" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="11" y1="14" x2="11" y2="20" stroke="#3d7272" stroke-width="1.6" stroke-linecap="round"/><line x1="7" y1="8" x2="15" y2="8" stroke="#3d7272" stroke-width="1.3" stroke-linecap="round"/><line x1="7" y1="11" x2="13" y2="11" stroke="#3d7272" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <div class="metode-navn">Praksisfortelling</div>
+        <div class="metode-beskrivelse">Fri narrativ beskrivelse av en konkret situasjon med rom for refleksjon etterpå.</div>
+      </div>
+
+      <div class="metode-kort" onclick="velgMetode('sosiogram')">
+        <div class="metode-ikon">
+          <svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="5" r="2.5" stroke="#3d7272" stroke-width="1.6"/><circle cx="4" cy="17" r="2.5" stroke="#3d7272" stroke-width="1.6"/><circle cx="18" cy="17" r="2.5" stroke="#3d7272" stroke-width="1.6"/><line x1="9.5" y1="7" x2="5.5" y2="15" stroke="#3d7272" stroke-width="1.3"/><line x1="12.5" y1="7" x2="16.5" y2="15" stroke="#3d7272" stroke-width="1.3"/><line x1="6.5" y1="17" x2="15.5" y2="17" stroke="#3d7272" stroke-width="1.3"/></svg>
+        </div>
+        <div class="metode-navn">Sosiogram</div>
+        <div class="metode-beskrivelse">Kartlegger sosiale relasjoner i gruppen. Hvem søker kontakt med hvem, og er det positivt?</div>
+      </div>
+
+      <div class="metode-kort" onclick="velgMetode('hendelse')">
+        <div class="metode-ikon">
+          <svg viewBox="0 0 22 22" fill="none"><rect x="3" y="3" width="16" height="16" rx="2.5" stroke="#3d7272" stroke-width="1.6"/><line x1="11" y1="7" x2="11" y2="15" stroke="#3d7272" stroke-width="1.6" stroke-linecap="round"/><line x1="7" y1="11" x2="15" y2="11" stroke="#3d7272" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <div class="metode-navn">Hendelsesregistrering</div>
+        <div class="metode-beskrivelse">Registrerer hver gang en bestemt atferd eller hendelse oppstår hos ett barn.</div>
+      </div>
+
+      <div class="metode-kort" onclick="velgMetode('tidssampling')">
+        <div class="metode-ikon">
+          <svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="12" r="7" stroke="#3d7272" stroke-width="1.6"/><line x1="11" y1="5" x2="11" y2="3" stroke="#3d7272" stroke-width="1.6" stroke-linecap="round"/><line x1="11" y1="12" x2="14" y2="9" stroke="#3d7272" stroke-width="1.6" stroke-linecap="round"/><line x1="8" y1="2" x2="14" y2="2" stroke="#3d7272" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <div class="metode-navn">Tidssampling</div>
+        <div class="metode-beskrivelse">Hva gjør barnet til bestemte tidspunkter? Registrerer atferd med faste intervaller.</div>
+      </div>
+
+      <div class="metode-kort" onclick="velgMetode('sprak')">
+        <div class="metode-ikon">
+          <svg viewBox="0 0 22 22" fill="none"><path d="M4 6h14v8H4z" rx="1.5" stroke="#3d7272" stroke-width="1.6" fill="none"/><path d="M7 17h8" stroke="#3d7272" stroke-width="1.6" stroke-linecap="round"/><path d="M11 14v3" stroke="#3d7272" stroke-width="1.6" stroke-linecap="round"/><line x1="7" y1="10" x2="15" y2="10" stroke="#3d7272" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="metode-navn">Språkkartlegging</div>
+        <div class="metode-beskrivelse">Systematisk kartlegging av barnets språkutvikling innenfor åtte sentrale utviklingsområder.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- 1. LØPENDE PROTOKOLL -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="skjema-seksjon" id="skjema-lopende">
+    <div class="skjema-header">
+      <div class="skjema-tittel">Løpende protokoll</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="tilbake()">Bytt metode</button>
+        <button class="btn btn-secondary" onclick="window.print()">
+          <svg viewBox="0 0 16 16" fill="none" style="width:14px;height:14px"><path d="M4 6V2h8v4M4 12H2V7h12v5h-2M4 10h8v4H4v-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Skriv ut / PDF
+        </button>
+      </div>
+    </div>
+    <p class="skjema-ingress">Følg ett barn intensivt over 2 til 5 minutter. Beskriv nøyaktig hva du ser og hører i den venstre kolonnen. Tolkinger, spørsmål og tanker hører til i den høyre kolonnen.</p>
+
+    <div class="kort">
+      <div class="kort-tittel">Bakgrunn</div>
+      <div class="meta-grid tre">
+        <div class="felt"><label>Barnets navn</label><input type="text" id="lp-barn" placeholder="Fornavn"></div>
+        <div class="felt"><label>Dato</label><input type="date" id="lp-dato"></div>
+        <div class="felt"><label>Klokkeslett</label><input type="time" id="lp-tid"></div>
+        <div class="felt"><label>Situasjon og sted</label><input type="text" id="lp-situasjon" placeholder="f.eks. Frilek inne, byggekroken"></div>
+        <div class="felt"><label>Observatør</label><input type="text" id="lp-obs" placeholder="Ditt navn"></div>
+        <div class="felt"><label>Varighet (min)</label><input type="number" id="lp-varighet" placeholder="f.eks. 3" min="1" max="60"></div>
+      </div>
+    </div>
+
+    <div class="kort">
+      <div class="kort-tittel">Observasjonslogg</div>
+      <div class="tabell-wrap">
+        <table id="lp-tabell">
+          <thead>
+            <tr>
+              <th class="rad-nr">#</th>
+              <th style="width:50%">Beskrivelse (hva skjer, ordrett)</th>
+              <th>Tolking og refleksjon</th>
+              <th class="slett-rad"></th>
+            </tr>
+          </thead>
+          <tbody id="lp-rader"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-ghost" onclick="leggTilLpRad()">
+        <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><line x1="8" y1="3" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Legg til rad
+      </button>
+    </div>
+
+    <div class="kort">
+      <div class="kort-tittel">Oppsummering og videre arbeid</div>
+      <div class="felt"><label>Hva vil du følge opp?</label><textarea id="lp-oppfolging" placeholder="Noter hva du ønsker å se nærmere på, og eventuelle tiltak..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- 2. PRAKSISFORTELLING -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="skjema-seksjon" id="skjema-praksisfortelling">
+    <div class="skjema-header">
+      <div class="skjema-tittel">Praksisfortelling</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="tilbake()">Bytt metode</button>
+        <button class="btn btn-secondary" onclick="window.print()">
+          <svg viewBox="0 0 16 16" fill="none" style="width:14px;height:14px"><path d="M4 6V2h8v4M4 12H2V7h12v5h-2M4 10h8v4H4v-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Skriv ut / PDF
+        </button>
+      </div>
+    </div>
+    <p class="skjema-ingress">En praksisfortelling er en fri, konkret beskrivelse av en situasjon slik den utspilte seg. Skriv i presens og med detaljer om hva som ble sagt og gjort. Tolkinger hører til i refleksjonsdelen.</p>
+
+    <div class="kort">
+      <div class="kort-tittel">Bakgrunn</div>
+      <div class="meta-grid">
+        <div class="felt"><label>Barn eller gruppe</label><input type="text" id="pf-barn" placeholder="Navn eller betegnelse"></div>
+        <div class="felt"><label>Dato</label><input type="date" id="pf-dato"></div>
+        <div class="felt"><label>Sted og situasjon</label><input type="text" id="pf-sted" placeholder="f.eks. Utetid, sandkassen"></div>
+        <div class="felt"><label>Hvem var til stede</label><input type="text" id="pf-tilstede" placeholder="Barn, voksne"></div>
+      </div>
+    </div>
+
+    <div class="kort">
+      <div class="kort-tittel">Fortelling</div>
+      <div class="felt">
+        <label>Beskriv situasjonen slik den utspilte seg</label>
+        <textarea id="pf-fortelling" style="min-height:200px" placeholder="Skriv fortelling her. Hva skjer, hva sies, hva gjøres? Vær konkret og spesifikk. Skriv gjerne i presens, som om du ser det for deg nå..."></textarea>
+      </div>
+    </div>
+
+    <div class="kort">
+      <div class="kort-tittel">Refleksjon</div>
+      <div class="felt" style="margin-bottom:14px">
+        <label>Hva la du spesielt merke til?</label>
+        <textarea id="pf-merket" placeholder="Hva vekte din oppmerksomhet? Hva overrasket deg?"></textarea>
+      </div>
+      <div class="felt" style="margin-bottom:14px">
+        <label>Hva tenker du om det som skjedde?</label>
+        <textarea id="pf-tenker" placeholder="Hva forteller dette om barnet, gruppen eller den pedagogiske situasjonen?"></textarea>
+      </div>
+      <div class="felt">
+        <label>Hva vil du gjøre videre?</label>
+        <textarea id="pf-videre" placeholder="Tiltak, endringer i miljø, oppfølging, samtale med foreldre eller kollegaer..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- 3. SOSIOGRAM -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="skjema-seksjon" id="skjema-sosiogram">
+    <div class="skjema-header">
+      <div class="skjema-tittel">Sosiogram</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="tilbake()">Bytt metode</button>
+        <button class="btn btn-secondary" onclick="window.print()">
+          <svg viewBox="0 0 16 16" fill="none" style="width:14px;height:14px"><path d="M4 6V2h8v4M4 12H2V7h12v5h-2M4 10h8v4H4v-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Skriv ut / PDF
+        </button>
+      </div>
+    </div>
+    <p class="skjema-ingress">Sosiogrammet kartlegger sosiale relasjoner i gruppen. Legg inn barna, registrer hvem som søker kontakt med hvem, og se mønsteret i en matrise.</p>
+
+    <div class="kort">
+      <div class="kort-tittel">Bakgrunn</div>
+      <div class="meta-grid">
+        <div class="felt"><label>Avdeling / gruppe</label><input type="text" id="sg-gruppe" placeholder="f.eks. Solstrålen"></div>
+        <div class="felt"><label>Dato</label><input type="date" id="sg-dato"></div>
+        <div class="felt"><label>Observasjonsperiode</label><input type="text" id="sg-periode" placeholder="f.eks. 09:00–10:30"></div>
+        <div class="felt"><label>Observatør</label><input type="text" id="sg-obs" placeholder="Ditt navn"></div>
+      </div>
+    </div>
+
+    <div class="kort">
+      <div class="kort-tittel">Barn i gruppen</div>
+      <div class="legg-til-barn">
+        <input type="text" id="sg-navn-input" placeholder="Skriv barnets navn og trykk Enter" onkeydown="if(event.key==='Enter'){leggTilBarn();}">
+        <button class="btn btn-primary" onclick="leggTilBarn()">Legg til</button>
+      </div>
+      <div class="barn-chips" id="sg-chips"></div>
+    </div>
+
+    <div class="kort">
+      <div class="kort-tittel">Registrer kontakt</div>
+      <p style="font-size:0.85rem;color:#888;margin-bottom:14px">Registrer hver gang du ser at et barn søker eller etablerer kontakt med et annet.</p>
+      <div id="sg-interaksjoner"></div>
+      <button class="btn btn-ghost" onclick="leggTilInteraksjon()" style="margin-top:8px">
+        <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><line x1="8" y1="3" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Registrer kontakt
+      </button>
+    </div>
+
+    <div class="kort" id="sg-matrise-kort" style="display:none">
+      <div class="kort-tittel">Sosial matrise</div>
+      <p style="font-size:0.82rem;color:#888;margin-bottom:12px">Rad = hvem tok initiativ. Kolonne = hvem ble kontaktet. P = positiv, N = negativ/avvisning, B = begge retninger.</p>
+      <div class="matrise-wrap" id="sg-matrise"></div>
+    </div>
+
+    <div class="kort">
+      <div class="kort-tittel">Refleksjon</div>
+      <div class="felt" style="margin-bottom:14px"><label>Hva viser sosiogrammet?</label><textarea id="sg-refleksjon" placeholder="Hvem er i kjernen av gruppa? Er noen isolerte? Er det gjensidighet i relasjonene?"></textarea></div>
+      <div class="felt"><label>Tiltak og oppfølging</label><textarea id="sg-tiltak" placeholder="Hva vil du gjøre på bakgrunn av funnene?"></textarea></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- 4. HENDELSESREGISTRERING -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="skjema-seksjon" id="skjema-hendelse">
+    <div class="skjema-header">
+      <div class="skjema-tittel">Hendelsesregistrering</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="tilbake()">Bytt metode</button>
+        <button class="btn btn-secondary" onclick="window.print()">
+          <svg viewBox="0 0 16 16" fill="none" style="width:14px;height:14px"><path d="M4 6V2h8v4M4 12H2V7h12v5h-2M4 10h8v4H4v-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Skriv ut / PDF
+        </button>
+      </div>
+    </div>
+    <p class="skjema-ingress">Definer atferden du vil observere på forhånd. Registrer deretter hver gang atferden oppstår med tidspunkt og kontekst. Brukes for å se mønstre i frekvens og situasjon.</p>
+
+    <div class="kort">
+      <div class="kort-tittel">Bakgrunn</div>
+      <div class="meta-grid tre">
+        <div class="felt"><label>Barnets navn</label><input type="text" id="hr-barn" placeholder="Fornavn"></div>
+        <div class="felt"><label>Dato</label><input type="date" id="hr-dato"></div>
+        <div class="felt"><label>Observatør</label><input type="text" id="hr-obs" placeholder="Ditt navn"></div>
+      </div>
+      <div class="felt" style="margin-top:14px">
+        <label>Atferd som observeres (definer tydelig)</label>
+        <input type="text" id="hr-atferd" placeholder="f.eks. Søker fysisk kontakt med andre barn under frilek">
+      </div>
+    </div>
+
+    <div class="kort">
+      <div class="kort-tittel">Hendelseslogg <span id="hr-teller" style="font-size:0.82rem;color:#888;font-weight:400;margin-left:8px"></span></div>
+      <div class="tabell-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="rad-nr">#</th>
+              <th style="width:90px">Klokkeslett</th>
+              <th>Beskrivelse av hendelsen</th>
+              <th>Kontekst og mulig utløser</th>
+              <th class="slett-rad"></th>
+            </tr>
+          </thead>
+          <tbody id="hr-rader"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-ghost" onclick="leggTilHr()" style="margin-top:12px">
+        <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><line x1="8" y1="3" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Registrer hendelse
+      </button>
+    </div>
+
+    <div class="kort">
+      <div class="kort-tittel">Oppsummering</div>
+      <div class="felt" style="margin-bottom:14px"><label>Mønster og sammenhenger</label><textarea id="hr-monster" placeholder="Hva ser du av mønster i tidspunkt, situasjon, hyppighet?"></textarea></div>
+      <div class="felt"><label>Tiltak og oppfølging</label><textarea id="hr-tiltak" placeholder="Hva vil du gjøre videre?"></textarea></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- 5. TIDSSAMPLING -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="skjema-seksjon" id="skjema-tidssampling">
+    <div class="skjema-header">
+      <div class="skjema-tittel">Tidssampling</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="tilbake()">Bytt metode</button>
+        <button class="btn btn-secondary" onclick="window.print()">
+          <svg viewBox="0 0 16 16" fill="none" style="width:14px;height:14px"><path d="M4 6V2h8v4M4 12H2V7h12v5h-2M4 10h8v4H4v-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Skriv ut / PDF
+        </button>
+      </div>
+    </div>
+    <p class="skjema-ingress">Til bestemte tidspunkter (f.eks. hvert 5. minutt) noterer du hva barnet gjør akkurat da. Over tid gir dette et bilde av barnets aktivitetsmønster og sosiale deltakelse.</p>
+
+    <div class="kort">
+      <div class="kort-tittel">Oppsett</div>
+      <div class="meta-grid tre">
+        <div class="felt"><label>Barnets navn</label><input type="text" id="ts-barn" placeholder="Fornavn"></div>
+        <div class="felt"><label>Dato</label><input type="date" id="ts-dato"></div>
+        <div class="felt"><label>Observatør</label><input type="text" id="ts-obs" placeholder="Ditt navn"></div>
+        <div class="felt"><label>Starttidspunkt</label><input type="time" id="ts-start" value="09:00"></div>
+        <div class="felt">
+          <label>Intervall (minutter)</label>
+          <select id="ts-intervall" onchange="genererTidspunkter()">
+            <option value="5">Hvert 5. minutt</option>
+            <option value="10" selected>Hvert 10. minutt</option>
+            <option value="15">Hvert 15. minutt</option>
+            <option value="20">Hvert 20. minutt</option>
+          </select>
+        </div>
+        <div class="felt">
+          <label>Antall observasjoner</label>
+          <select id="ts-antall" onchange="genererTidspunkter()">
+            <option value="6">6 observasjoner</option>
+            <option value="8" selected>8 observasjoner</option>
+            <option value="10">10 observasjoner</option>
+            <option value="12">12 observasjoner</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="genererTidspunkter()" style="margin-top:14px">Generer skjema</button>
+    </div>
+
+    <div class="kort" id="ts-skjema-kort" style="display:none">
+      <div class="kort-tittel">Observasjonslogg</div>
+      <div class="tabell-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:80px">Tidspunkt</th>
+              <th>Aktivitet</th>
+              <th>Sted</th>
+              <th>Hvem er barnet med</th>
+              <th>Kommentar</th>
+            </tr>
+          </thead>
+          <tbody id="ts-rader"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="kort">
+      <div class="kort-tittel">Oppsummering</div>
+      <div class="felt" style="margin-bottom:14px"><label>Hva viser aktivitetsmønsteret?</label><textarea id="ts-monster" placeholder="Aktivitetsprofil, sosial deltakelse, preferanser..."></textarea></div>
+      <div class="felt"><label>Tiltak og oppfølging</label><textarea id="ts-tiltak" placeholder="Hva vil du endre eller følge opp?"></textarea></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- 6. SPRÅKKARTLEGGING -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="skjema-seksjon" id="skjema-sprak">
+    <div class="skjema-header">
+      <div class="skjema-tittel">Språkkartlegging</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="tilbake()">Bytt metode</button>
+        <button class="btn btn-secondary" onclick="window.print()">
+          <svg viewBox="0 0 16 16" fill="none" style="width:14px;height:14px"><path d="M4 6V2h8v4M4 12H2V7h12v5h-2M4 10h8v4H4v-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          Skriv ut / PDF
+        </button>
+      </div>
+    </div>
+    <p class="skjema-ingress">Systematisk kartlegging av barnets språkutvikling innenfor åtte sentrale områder. Fylles ut basert på observasjon i naturlige hverdagssituasjoner over tid, ikke i testsituasjon.</p>
+
+    <div class="kort">
+      <div class="kort-tittel">Bakgrunn</div>
+      <div class="meta-grid tre">
+        <div class="felt"><label>Barnets navn</label><input type="text" id="sk-barn" placeholder="Fornavn"></div>
+        <div class="felt"><label>Fødselsdato / alder</label><input type="text" id="sk-alder" placeholder="f.eks. 3 år 4 mnd"></div>
+        <div class="felt"><label>Kartleggingsperiode</label><input type="text" id="sk-periode" placeholder="f.eks. jan–mar 2026"></div>
+        <div class="felt"><label>Kartlegger</label><input type="text" id="sk-obs" placeholder="Ditt navn"></div>
+        <div class="felt"><label>Morsmål (om ikke norsk)</label><input type="text" id="sk-sprak" placeholder="f.eks. Somali"></div>
+        <div class="felt"><label>Dato for utfylling</label><input type="date" id="sk-dato"></div>
+      </div>
+    </div>
+
+    <p style="font-size:0.82rem;color:#888;margin-bottom:16px;padding:0 2px">
+      For hvert punkt: velg <strong style="color:#2e7d32">Observert</strong> (atferden er godt etablert), <strong style="color:#e65100">Under utvikling</strong> (av og til, ikke konsistent) eller <strong style="color:#888">Ikke ennå</strong>.
+    </p>
+
+    <div id="sk-omrader"></div>
+
+    <div class="kort">
+      <div class="kort-tittel">Helhetsvurdering og tiltak</div>
+      <div class="felt" style="margin-bottom:14px"><label>Barnets styrker</label><textarea id="sk-styrker" placeholder="Hva mestrer barnet godt?"></textarea></div>
+      <div class="felt" style="margin-bottom:14px"><label>Områder for oppfølging</label><textarea id="sk-oppfolging" placeholder="Hva trenger barnet mer støtte og stimulering i?"></textarea></div>
+      <div class="felt"><label>Tiltak og tilrettelegging</label><textarea id="sk-tiltak" placeholder="Konkrete tiltak, evt. behov for spesialpedagogisk hjelp, samarbeid med foreldre..."></textarea></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>barnehagekassa.no &nbsp;·&nbsp; Gratis verktøy for barnehageansatte</footer>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
+var sgBarn = [];
+var sgInteraksjoner = [];
+var lpRadTeller = 0;
+var hrRadTeller = 0;
+
+// ─── NAVIGASJON ──────────────────────────────────────────────────────────────
+
+function velgMetode(id) {
+  document.querySelectorAll('.skjema-seksjon').forEach(function(s){ s.classList.remove('synlig'); });
+  document.querySelectorAll('.metode-kort').forEach(function(k){ k.classList.remove('aktiv'); });
+  var seksjon = document.getElementById('skjema-' + id);
+  if (seksjon) seksjon.classList.add('synlig');
+  document.getElementById('metodevelger').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (id === 'lopende' && document.getElementById('lp-rader').children.length === 0) {
+    leggTilLpRad(); leggTilLpRad(); leggTilLpRad();
+  }
+  if (id === 'hendelse' && document.getElementById('hr-rader').children.length === 0) {
+    leggTilHr(); leggTilHr();
+  }
+  if (id === 'tidssampling') genererTidspunkter();
+  if (id === 'sprak') byggSprakOmrader();
+  var today = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('input[type=date]').forEach(function(d){ if (!d.value) d.value = today; });
+}
+
+function tilbake() {
+  document.querySelectorAll('.skjema-seksjon').forEach(function(s){ s.classList.remove('synlig'); });
+  document.getElementById('metodevelger').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── LØPENDE PROTOKOLL ───────────────────────────────────────────────────────
+
+function leggTilLpRad() {
+  lpRadTeller++;
+  var n = lpRadTeller;
+  var tbody = document.getElementById('lp-rader');
+  var tr = document.createElement('tr');
+  tr.id = 'lp-rad-' + n;
+  tr.innerHTML =
+    '<td class="rad-nr">' + tbody.children.length + 1 + '</td>' +
+    '<td><textarea placeholder="Beskriv ordrett hva du ser og hører..."></textarea></td>' +
+    '<td><textarea placeholder="Hva tenker du om dette?"></textarea></td>' +
+    '<td class="slett-rad"><button onclick="fjernRad(\'lp-rad-' + n + '\', \'lp\')">&#x2715;</button></td>';
+  tbody.appendChild(tr);
+  oppdaterRadNummer('lp-rader');
+}
+
+function fjernRad(id, prefix) {
+  var el = document.getElementById(id);
+  if (el) el.remove();
+  if (prefix) oppdaterRadNummer(prefix + '-rader');
+}
+
+function oppdaterRadNummer(tbodyId) {
+  var tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  Array.from(tbody.children).forEach(function(tr, i) {
+    var nr = tr.querySelector('.rad-nr');
+    if (nr) nr.textContent = i + 1;
+  });
+}
+
+// ─── HENDELSESREGISTRERING ───────────────────────────────────────────────────
+
+function leggTilHr() {
+  hrRadTeller++;
+  var n = hrRadTeller;
+  var tbody = document.getElementById('hr-rader');
+  var antall = tbody.children.length + 1;
+  var tr = document.createElement('tr');
+  tr.id = 'hr-rad-' + n;
+  tr.innerHTML =
+    '<td class="rad-nr">' + antall + '</td>' +
+    '<td><input type="time"></td>' +
+    '<td><textarea placeholder="Hva skjedde?"></textarea></td>' +
+    '<td><textarea placeholder="Hva skjedde rett før? Hvem var til stede?"></textarea></td>' +
+    '<td class="slett-rad"><button onclick="fjernHrRad(\'hr-rad-' + n + '\')">&#x2715;</button></td>';
+  tbody.appendChild(tr);
+  oppdaterHrTeller();
+}
+
+function fjernHrRad(id) {
+  var el = document.getElementById(id);
+  if (el) el.remove();
+  oppdaterRadNummer('hr-rader');
+  oppdaterHrTeller();
+}
+
+function oppdaterHrTeller() {
+  var antall = document.getElementById('hr-rader').children.length;
+  document.getElementById('hr-teller').textContent = antall > 0 ? antall + ' hendelse' + (antall !== 1 ? 'r' : '') + ' registrert' : '';
+}
+
+// ─── SOSIOGRAM ───────────────────────────────────────────────────────────────
+
+function leggTilBarn() {
+  var input = document.getElementById('sg-navn-input');
+  var navn = input.value.trim();
+  if (!navn) return;
+  if (sgBarn.indexOf(navn) !== -1) { input.value = ''; return; }
+  sgBarn.push(navn);
+  input.value = '';
+  oppdaterBarnChips();
+  oppdaterSgSelects();
+  oppdaterSgMatrise();
+}
+
+function fjernBarn(navn) {
+  sgBarn = sgBarn.filter(function(b){ return b !== navn; });
+  sgInteraksjoner = sgInteraksjoner.filter(function(i){ return i.fra !== navn && i.til !== navn; });
+  oppdaterBarnChips();
+  oppdaterSgSelects();
+  oppdaterSgMatrise();
+}
+
+function oppdaterBarnChips() {
+  var container = document.getElementById('sg-chips');
+  container.innerHTML = '';
+  sgBarn.forEach(function(navn) {
+    var chip = document.createElement('div');
+    chip.className = 'barn-chip';
+    chip.innerHTML = navn + '<button onclick="fjernBarn(\'' + navn.replace(/'/g, "\\'") + '\')">&times;</button>';
+    container.appendChild(chip);
+  });
+}
+
+function leggTilInteraksjon() {
+  var container = document.getElementById('sg-interaksjoner');
+  var div = document.createElement('div');
+  div.className = 'interaksjon-rad';
+  var opts = sgBarn.map(function(b){ return '<option value="' + b + '">' + b + '</option>'; }).join('');
+  var id = Date.now();
+  div.id = 'si-' + id;
+  div.innerHTML =
+    '<select onchange="oppdaterSgMatrise()" title="Hvem tok initiativ">' +
+      '<option value="">Fra (initiativ)</option>' + opts +
+    '</select>' +
+    '<select onchange="oppdaterSgMatrise()" title="Type kontakt">' +
+      '<option value="positiv">Positiv kontakt</option>' +
+      '<option value="negativ">Negativ / avvisning</option>' +
+      '<option value="noytr">Nøytral</option>' +
+    '</select>' +
+    '<select onchange="oppdaterSgMatrise()" title="Hvem ble kontaktet">' +
+      '<option value="">Til (mottaker)</option>' + opts +
+    '</select>' +
+    '<button class="btn btn-ghost" onclick="document.getElementById(\'si-' + id + '\').remove();oppdaterSgMatrise();" style="padding:8px 10px;border-radius:8px">&#x2715;</button>';
+  container.appendChild(div);
+}
+
+function oppdaterSgSelects() {
+  document.querySelectorAll('#sg-interaksjoner .interaksjon-rad select').forEach(function(sel) {
+    var gjeldende = sel.value;
+    var erFra = sel.getAttribute('title') === 'Hvem tok initiativ';
+    var erTil = sel.getAttribute('title') === 'Hvem ble kontaktet';
+    if (erFra || erTil) {
+      var opts = (erFra ? '<option value="">Fra (initiativ)</option>' : '<option value="">Til (mottaker)</option>');
+      opts += sgBarn.map(function(b){ return '<option value="' + b + '">' + b + '</option>'; }).join('');
+      sel.innerHTML = opts;
+      sel.value = gjeldende;
+    }
+  });
+}
+
+function oppdaterSgMatrise() {
+  var rader = document.querySelectorAll('#sg-interaksjoner .interaksjon-rad');
+  var data = {};
+  sgBarn.forEach(function(a){
+    data[a] = {};
+    sgBarn.forEach(function(b){ data[a][b] = []; });
+  });
+
+  rader.forEach(function(rad) {
+    var sels = rad.querySelectorAll('select');
+    var fra = sels[0] ? sels[0].value : '';
+    var type = sels[1] ? sels[1].value : 'positiv';
+    var til = sels[2] ? sels[2].value : '';
+    if (fra && til && fra !== til) {
+      data[fra][til].push(type);
+    }
+  });
+
+  var kort = document.getElementById('sg-matrise-kort');
+  var wrap = document.getElementById('sg-matrise');
+  if (sgBarn.length < 2) { kort.style.display = 'none'; return; }
+  kort.style.display = 'block';
+
+  var html = '<table class="matrise"><thead><tr><th>Fra / Til</th>';
+  sgBarn.forEach(function(b){ html += '<th>' + b + '</th>'; });
+  html += '</tr></thead><tbody>';
+  sgBarn.forEach(function(fra){
+    html += '<tr><td class="rad-hode">' + fra + '</td>';
+    sgBarn.forEach(function(til){
+      if (fra === til) { html += '<td style="background:#f5f5f5;color:#ccc">–</td>'; return; }
+      var kontakter = data[fra][til];
+      if (kontakter.length === 0) { html += '<td></td>'; return; }
+      var pos = kontakter.filter(function(k){ return k === 'positiv'; }).length;
+      var neg = kontakter.filter(function(k){ return k === 'negativ'; }).length;
+      var noy = kontakter.filter(function(k){ return k === 'noytr'; }).length;
+      var cls = neg > pos ? 'negativ' : (pos > 0 ? 'positiv' : 'noytr');
+      html += '<td class="' + cls + '">' + kontakter.length + '</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+// ─── TIDSSAMPLING ────────────────────────────────────────────────────────────
+
+function genererTidspunkter() {
+  var startStr = document.getElementById('ts-start').value || '09:00';
+  var intervall = parseInt(document.getElementById('ts-intervall').value, 10);
+  var antall = parseInt(document.getElementById('ts-antall').value, 10);
+  var parts = startStr.split(':');
+  var timer = parseInt(parts[0], 10);
+  var min = parseInt(parts[1], 10);
+
+  var tbody = document.getElementById('ts-rader');
+  tbody.innerHTML = '';
+  for (var i = 0; i < antall; i++) {
+    var h = String(timer).padStart(2, '0');
+    var m = String(min).padStart(2, '0');
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="font-weight:700;color:#3d7272;font-size:0.88rem;padding-top:12px">' + h + ':' + m + '</td>' +
+      '<td><textarea placeholder="Hva gjør barnet?" style="min-height:55px"></textarea></td>' +
+      '<td><textarea placeholder="Hvor?" style="min-height:55px"></textarea></td>' +
+      '<td><textarea placeholder="Hvem er barnet med?" style="min-height:55px"></textarea></td>' +
+      '<td><textarea placeholder="Kommentar" style="min-height:55px"></textarea></td>';
+    tbody.appendChild(tr);
+    min += intervall;
+    if (min >= 60) { min -= 60; timer++; }
+    if (timer >= 24) timer = 0;
+  }
+  document.getElementById('ts-skjema-kort').style.display = 'block';
+}
+
+// ─── SPRÅKKARTLEGGING ────────────────────────────────────────────────────────
+
+var sprakOmrader = [
+  {
+    navn: 'Samspill', farge: 'alder-2',
+    punkter: [
+      'Tar blikkontakt og opprettholder øyekontakt i samspill',
+      'Responderer når noen tar kontakt eller kaller på barnet',
+      'Deler oppmerksomhet med andre (felles fokus på ting og hendelser)',
+      'Viser interesse for å leke og samhandle med andre barn',
+      'Imiterer andres handlinger og uttrykk'
+    ]
+  },
+  {
+    navn: 'Kommunikasjon', farge: 'alder-2',
+    punkter: [
+      'Bruker gester, mimikk og kroppsspråk for å kommunisere',
+      'Initierer kommunikasjon med barn og voksne',
+      'Signaliserer behov og ønsker tydelig',
+      'Veksler mellom å snakke og lytte i samtale',
+      'Tilpasser kommunikasjon til situasjon og mottaker'
+    ]
+  },
+  {
+    navn: 'Oppmerksomhet', farge: 'alder-3',
+    punkter: [
+      'Kan konsentrere seg om en aktivitet over tid',
+      'Følger enkle instruksjoner fra voksne',
+      'Følger sammensatte instruksjoner (to eller flere ledd)',
+      'Kan skifte oppmerksomhet mellom aktiviteter uten stor motstand',
+      'Opprettholder felles oppmerksomhet rundt bøker og historier'
+    ]
+  },
+  {
+    navn: 'Språkforståelse', farge: 'alder-3',
+    punkter: [
+      'Forstår enkle setninger og spørsmål',
+      'Forstår begreper om rom og tid (inne/ute, før/etter)',
+      'Forstår kategoribegreper (dyr, mat, klær)',
+      'Forstår sammensatte og komplekse setninger',
+      'Forstår enkle fortellinger og gjenforteller innhold'
+    ]
+  },
+  {
+    navn: 'Språkbevissthet', farge: 'alder-3',
+    punkter: [
+      'Viser glede ved rim, regler og lydlek',
+      'Kan ramse opp stavelser i ord (klappe stavelser)',
+      'Legger merke til lyder i ord (begynnelses- og sluttlyd)',
+      'Viser interesse for bokstaver og skrift',
+      'Kan identifisere ord som begynner med samme lyd'
+    ]
+  },
+  {
+    navn: 'Uttale', farge: 'alder-4',
+    punkter: [
+      'Er forståelig for kjente voksne',
+      'Er forståelig for ukjente voksne',
+      'Mestrer de fleste vokaler korrekt',
+      'Mestrer de vanligste konsonantene korrekt',
+      'Konsonantforbindelser (bl, kr, str) er under utvikling'
+    ]
+  },
+  {
+    navn: 'Ordproduksjon', farge: 'alder-4',
+    punkter: [
+      'Har et aldersadekvat ordforråd for dagligdagse ting',
+      'Bruker navn på handlinger, egenskaper og kategorier',
+      'Finner ord uten lange letepauser',
+      'Bruker nye ord etter å ha hørt dem noen få ganger',
+      'Viser interesse for å lære nye ord og hva de betyr'
+    ]
+  },
+  {
+    navn: 'Setningsproduksjon', farge: 'alder-4',
+    punkter: [
+      'Bruker setninger med to eller flere ord',
+      'Bruker enkle setninger med subjekt og verb',
+      'Bruker utvidede setninger med bisetninger',
+      'Bruker korrekt bøyning av verb og substantiv (flertall, tid)',
+      'Kan fortelle om egne opplevelser i sammenhengende setninger'
+    ]
+  }
+];
+
+function byggSprakOmrader() {
+  var container = document.getElementById('sk-omrader');
+  if (container.children.length > 0) return;
+  sprakOmrader.forEach(function(omrade, oi) {
+    var div = document.createElement('div');
+    div.className = 'sprak-omrade';
+    var html = '<div class="sprak-omrade-tittel">' + omrade.navn + '<span class="alder-badge ' + omrade.farge + '">Område ' + (oi + 1) + ' av 8</span></div>';
+    omrade.punkter.forEach(function(punkt, pi) {
+      var navn = 'sk-' + oi + '-' + pi;
+      html +=
+        '<div class="sprak-item">' +
+          '<div class="sprak-item-tekst">' + punkt + '</div>' +
+          '<div class="sprak-status">' +
+            '<label><input type="radio" name="' + navn + '" value="observert"> <span class="status-observert">Observert</span></label>' +
+            '<label><input type="radio" name="' + navn + '" value="utvikling"> <span class="status-utvikling">Under utvikling</span></label>' +
+            '<label><input type="radio" name="' + navn + '" value="ikke" checked> <span class="status-ikke">Ikke ennå</span></label>' +
+          '</div>' +
+        '</div>';
+    });
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+}
+
+// ─── MOBILMENY ───────────────────────────────────────────────────────────────
+
+document.getElementById('burgerBtn').addEventListener('click', function() {
+  this.classList.toggle('open');
+  document.getElementById('mobilNav').classList.toggle('open');
+});
+
+</script>
+</body>
+</html>
