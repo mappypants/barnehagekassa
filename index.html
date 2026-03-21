@@ -24,12 +24,24 @@
     nav a:hover { color: #3d7272; }
 
     .hero {
-      background: #3d7272;
+      background: #3d7272 url('heor-banner.png') center right / cover no-repeat;
       color: white;
-      padding: 68px 32px 60px;
+      padding: 100px 32px 90px;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
       position: relative;
       overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(35,80,80,0.88) 0%, rgba(35,80,80,0.70) 45%, rgba(35,80,80,0.20) 75%, rgba(35,80,80,0.02) 100%);
+      pointer-events: none;
     }
     .hero h1 { font-size: 2.6rem; font-weight: 900; margin-bottom: 14px; font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif; letter-spacing: -0.5px; position: relative; }
     .hero p { font-size: 1.08rem; color: rgba(255,255,255,0.88); max-width: 520px; margin: 0 auto 28px; line-height: 1.65; position: relative; }
