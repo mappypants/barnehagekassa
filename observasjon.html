@@ -194,6 +194,8 @@
     /* PRINT */
     @media print {
       body { background: white; font-size: 11pt; }
+      ::placeholder { color: transparent !important; }
+      input::placeholder, textarea::placeholder { color: transparent !important; }
       .site-header, .metode-grid, .metode-intro, .knapp-rad, .btn, footer, .burger, .mobil-nav, .skjema-header .btn, .slett-rad, .legg-til-barn, .skjema-seksjon:not(.synlig), .barn-chips button, .print-melding { display: none !important; }
       .page { padding: 0; max-width: 100%; }
       .skjema-seksjon.synlig { display: block !important; }
