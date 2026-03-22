@@ -1024,15 +1024,20 @@ function skrivUtTomt() {
   var lagrede = [];
   document.querySelectorAll('.skjema-seksjon.synlig input, .skjema-seksjon.synlig textarea').forEach(function(el) {
     if (el.type === 'radio') return;
-    lagrede.push({ el: el, verdi: el.value });
+    lagrede.push({ el: el, verdi: el.value, type: el.type });
+    // Dato og klokkeslett: bytt midlertidig til tekstfelt så nettleserens format-placeholder skjules
+    if (el.type === 'date' || el.type === 'time') el.type = 'text';
     el.value = '';
   });
 
   window.print();
 
-  // Gjenopprett verdier etter print
+  // Gjenopprett verdier og felttyper etter print
   setTimeout(function() {
-    lagrede.forEach(function(item) { item.el.value = item.verdi; });
+    lagrede.forEach(function(item) {
+      if (item.type) item.el.type = item.type;
+      item.el.value = item.verdi;
+    });
   }, 500);
 }
 
