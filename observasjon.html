@@ -208,17 +208,26 @@
       table { page-break-inside: avoid; }
       input, textarea, select { border: 1px solid #ccc !important; background: white !important; }
       .print-vannmerke {
-        display: block !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
         position: fixed;
-        top: 8px;
-        left: 8px;
-        z-index: 9999;
-        opacity: 0.35;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 6px 0;
+        border-top: 1px solid #ddd;
+        background: white;
+        opacity: 0.55;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+        font-size: 8pt;
+        color: #888;
+        font-family: "Segoe UI", Arial, sans-serif;
       }
       .print-vannmerke img {
-        height: 32px;
+        height: 18px;
         width: auto;
       }
     }
@@ -228,6 +237,7 @@
 
 <div class="print-vannmerke">
   <img src="logo_cropped.png" alt="Barnehagekassa">
+  <span>barnehagekassa.no</span>
 </div>
 
 <div class="site-header">
