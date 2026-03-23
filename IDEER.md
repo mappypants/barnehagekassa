@@ -1,5 +1,6 @@
 # Ideer for barnehagekassa.no
 _Notat laget 21. mars 2026 — sist oppdatert 23. mars 2026_
+_Fontendringer og logofikser 23. mars 2026_
 
 ---
 
@@ -43,3 +44,5 @@ _Notat laget 21. mars 2026 — sist oppdatert 23. mars 2026_
 - ✅ Fikset 404 på TRAS og ASK under spesialpedagogikk: Statped la om URL-strukturen; TRAS peker nå til `tras.infovestforlag.no`, ASK til ny statped.no-adresse _(23. mars)_
 - ✅ Søk forbedret: Spesialpedagogikk-kortet søker nå på TRAS, ASK, autisme, IOP, PPT, Statped m.m. _(23. mars)_
 - ✅ Alfabetisk sortering av kort innen alle kategorier på forsiden _(23. mars)_
+- ✅ **Font på overskrifter byttet til Quicksand** — alle 27 HTML-filer oppdatert fra Plus Jakarta Sans til Quicksand 500 (medium) for å matche logoens vekt og stil _(23. mars)_
+- ✅ **Logo konsistent på alle sider** — observasjon.html brukte gammelt logo-illustrasjon.png (laptop-logo); nå er alle sider samkjørt med barnehagekassa-logoen _(23. mars)_
