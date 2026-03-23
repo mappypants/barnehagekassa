@@ -262,7 +262,7 @@
 </div>
 
 <div class="page-hero">
-  <h1>Observasjonsskjema</h1>
+  <h1 id="hero-tittel">Observasjonsskjema</h1>
   <p>Velg observasjonsmetode, fyll ut skjemaet og skriv ut eller lagre som PDF. Tilpasset barnehagens pedagogiske arbeid.</p>
 </div>
 
@@ -699,12 +699,22 @@ var hrRadTeller = 0;
 
 // ─── NAVIGASJON ──────────────────────────────────────────────────────────────
 
+var metodeNavn = {
+  'lopende': 'Løpende protokoll',
+  'praksisfortelling': 'Praksisfortelling',
+  'sosiogram': 'Sosiogram',
+  'hendelse': 'Hendelsesregistrering',
+  'tidssampling': 'Tidssampling',
+  'sprak': 'Språkkartlegging'
+};
+
 function velgMetode(id) {
   document.querySelectorAll('.skjema-seksjon').forEach(function(s){ s.classList.remove('synlig'); });
   document.querySelectorAll('.metode-kort').forEach(function(k){ k.classList.remove('aktiv'); });
   var seksjon = document.getElementById('skjema-' + id);
   if (seksjon) seksjon.classList.add('synlig');
   document.getElementById('metodevelger').style.display = 'none';
+  if (metodeNavn[id]) document.getElementById('hero-tittel').textContent = metodeNavn[id];
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (id === 'lopende' && document.getElementById('lp-rader').children.length === 0) {
     leggTilLpRad(); leggTilLpRad(); leggTilLpRad();
@@ -721,6 +731,7 @@ function velgMetode(id) {
 function tilbake() {
   document.querySelectorAll('.skjema-seksjon').forEach(function(s){ s.classList.remove('synlig'); });
   document.getElementById('metodevelger').style.display = 'block';
+  document.getElementById('hero-tittel').textContent = 'Observasjonsskjema';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
