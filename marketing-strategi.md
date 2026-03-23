@@ -10,25 +10,29 @@ Denne mailen kan brukes når du kontakter redaksjoner, nettsider og fagmiljøer.
 
 ---
 
-**Emne:** Gratis verktøy laget av en barnehagemann, for barnehagefolk
+**BCC:** red@barnehage.no, post@barnehageforum.no, tips@utdanningsnytt.no, post@utdanningsforbundet.no, post@fagforbundet.no, skole@reddbarna.no, post@statped.no, ingebsu@oslomet.no
 
-Hei!
+**Emne:** Gratis verktøy for barnehageansatte, laget av en som jobber der selv
 
-Jeg heter Mats og jobber som pedagogisk leder i barnehage. Som mange andre i sektoren har jeg kjent på at det finnes få samla ressurser som faktisk treffer hverdagen vår. Derfor har jeg bygd barnehagekassa.no, en helt gratis nettside med praktiske verktøy for oss som jobber i barnehage.
+---
 
-Her finner du blant annet en bemanningsnormkalkulator, pedagognormkalkulator, aktivitetsgenerator, maler for foreldresamtaler og periodeplaner, lønnskalkulator, fagprathjul og mye mer. Alt er laget med tanke på at det skal være enkelt å bruke, rett fra mobilen eller PC-en, uten innlogging og uten kostnad.
+Hei,
 
-Jeg har ikke noe markedsføringsbudsjett eller stor organisasjon i ryggen. Det er bare meg, en kopp kaffe og et ønske om å gjøre hverdagen litt lettere for kollegaer rundt om i landet. Derfor sender jeg denne mailen til dere, fordi jeg tror dette kan være nyttig for de som følger dere.
+Jeg heter Mats, jobber som pedagogisk leder i barnehage og har laget en gratis nettside jeg tror mange i sektoren kan ha glede av.
 
-Hadde det vært mulig å dele barnehagekassa.no med leserne/følgerne deres? Det kan være som et tips i et nyhetsbrev, en kort omtale på nettsiden, eller bare en lenke i sosiale medier. Jeg setter stor pris på alt, stort som smått.
+Den heter barnehagekassa.no. Tanken bak var enkel: jeg savnet et sted der alt det praktiske var samlet. Bemanningsnorm, pedagognorm, lønn, plantid, maler til foreldresamtaler og periodeplaner, aktivitetsideer og mer. Så jeg laget det selv. Alt er gratis, ingen innlogging, funker på mobilen.
 
-Ta gjerne en titt selv først: **barnehagekassa.no**
+Jeg har ingen organisasjon bak meg og ingen penger til markedsføring. Det er bare meg og et ønske om å hjelpe kollegaer som allerede har nok å tenke på. Hvis dere synes dette er noe folk hos dere kan ha nytte av, setter jeg umåtelig stor pris på et tips videre, enten det er en lenke, en liten omtale eller bare et vink til noen som kan bruke det.
 
-Tusen takk for at dere tok dere tid til å lese dette. Og takk for jobben dere gjør for barnehagesektoren.
+barnehagekassa.no
 
-Varme hilsener,
-Mats
-Pedagogisk leder og skaperen bak barnehagekassa.no
+Takk for at du leste.
+
+Hilsen Mats
+
+---
+
+_Tips: Send med BCC så ingen ser de andre mottakerne. For NAFO (ingebsu@oslomet.no) kan det lønne seg å nevne flerspråklige ressurser. For Redd Barna at siden lenker til jegvet.no og snakkemedbarn.no._
 
 ---
 
