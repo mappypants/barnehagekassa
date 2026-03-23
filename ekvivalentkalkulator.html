@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ekvivalentkalkulator – barnehagekassa.no</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f2ed; color: #1a1a1a; min-height: 100vh; }
+
+    .site-header {
+      background: white;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e8e3db;
+    }
+    .site-header img { height: 60px; width: auto; display: block; }
+    .back-link { color: #3d7272; text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+    .back-link:hover { text-decoration: underline; }
+
+    .page { max-width: 540px; margin: 0 auto; padding: 32px 20px 60px; }
+    .page-title { font-size: 1.75rem; font-weight: 800; color: #3d7272; margin-bottom: 6px; font-family: 'Quicksand', 'Segoe UI', Arial, sans-serif; letter-spacing: -0.3px; }
+    .page-subtitle { font-size: 1rem; color: #555; margin-bottom: 28px; line-height: 1.6; }
+
+    .card { background: white; border-radius: 16px; padding: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); margin-bottom: 20px; }
+    .card-title { font-size: 0.8rem; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 20px; }
+
+    .input-group { margin-bottom: 24px; }
+    .input-group:last-child { margin-bottom: 0; }
+    .input-label { display: block; font-size: 1rem; font-weight: 600; color: #222; margin-bottom: 4px; }
+    .input-hint { font-size: 0.87rem; color: #888; margin-bottom: 10px; }
+
+    .num-ctrl { display: flex; align-items: center; border: 2px solid #c0dede; border-radius: 10px; overflow: hidden; background: #f5fbfb; width: 152px; }
+    .num-ctrl:focus-within { border-color: #3d7272; background: white; }
+    .num-ctrl button { width: 44px; height: 52px; background: none; border: none; font-size: 1.5rem; color: #3d7272; cursor: pointer; flex-shrink: 0; transition: background 0.12s; }
+    .num-ctrl button:hover { background: #e4f2f2; }
+    .num-ctrl button:active { background: #d0e8e8; }
+    .num-ctrl input { flex: 1; height: 52px; border: none; background: none; font-size: 1.3rem; font-weight: 700; text-align: center; color: #1a1a1a; outline: none; }
+    .num-ctrl input::-webkit-outer-spin-button,
+    .num-ctrl input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .num-ctrl input[type=number] { -moz-appearance: textfield; }
+
+    .divider { border: none; border-top: 1px solid #eee; margin: 22px 0; }
+
+    .warning { font-size: 0.85rem; color: #c0392b; margin-top: 8px; min-height: 1.2em; }
+
+    /* Resultat */
+    .result-card {
+      background: #e4f2f2;
+      border: 2px solid #3d7272;
+      border-radius: 16px;
+      padding: 28px;
+      text-align: center;
+    }
+    .result-label { font-size: 0.85rem; font-weight: 700; color: #3d7272; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .result-number { font-size: 3.5rem; font-weight: 900; color: #3d7272; font-family: 'Quicksand', 'Segoe UI', Arial, sans-serif; line-height: 1; margin-bottom: 6px; }
+    .result-sub { font-size: 0.95rem; color: #555; }
+
+    .breakdown { background: white; border-radius: 12px; padding: 16px 20px; margin-top: 14px; text-align: left; }
+    .breakdown-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; padding: 6px 0; color: #444; }
+    .breakdown-row:not(:last-child) { border-bottom: 1px solid #eee; }
+    .breakdown-row span:last-child { font-weight: 700; color: #3d7272; }
+
+    .empty-state { text-align: center; color: #aaa; font-size: 0.95rem; padding: 12px 0; }
+
+    /* Footer */
+    .site-footer {
+      background: white;
+      border-top: 1px solid #e8e3db;
+      padding: 32px;
+      margin-top: 60px;
+    }
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      justify-content: space-between;
+    }
+    .footer-col h4 { font-family: 'Quicksand', sans-serif; font-size: 0.85rem; font-weight: 700; color: #3d7272; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .footer-col a { display: block; color: #555; text-decoration: none; font-size: 0.9rem; margin-bottom: 5px; }
+    .footer-col a:hover { color: #3d7272; }
+    .footer-bottom { max-width: 1100px; margin: 24px auto 0; border-top: 1px solid #eee; padding-top: 16px; font-size: 0.82rem; color: #aaa; }
+  </style>
+</head>
+<body>
+
+  <div class="site-header">
+    <a href="index.html">
+      <img src="logo.png" alt="barnehagekassa.no">
+    </a>
+    <a class="back-link" href="index.html">← Alle verktøy</a>
+  </div>
+
+  <div class="page">
+    <div class="page-title">Ekvivalentkalkulator</div>
+    <p class="page-subtitle">Barn under 3 år teller som to ekvivalenter, barn fra 3 år teller som én. Kalkulatoren regner ut totalt antall ekvivalenter i barnegruppen din.</p>
+
+    <div class="card">
+      <div class="card-title">Barnegruppen</div>
+
+      <div class="input-group">
+        <label class="input-label" for="totalt">Antall barn totalt</label>
+        <p class="input-hint">Alle barn i gruppen, uavhengig av alder</p>
+        <div class="num-ctrl">
+          <button type="button" onclick="change('totalt', -1)" aria-label="Minus">&#8722;</button>
+          <input type="number" id="totalt" value="0" min="0" max="99" oninput="beregn()">
+          <button type="button" onclick="change('totalt', 1)" aria-label="Plus">&#43;</button>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label" for="under3">Barn under 3 år</label>
+        <p class="input-hint">Teller som to ekvivalenter hver</p>
+        <div class="num-ctrl">
+          <button type="button" onclick="change('under3', -1)" aria-label="Minus">&#8722;</button>
+          <input type="number" id="under3" value="0" min="0" max="99" oninput="beregn()">
+          <button type="button" onclick="change('under3', 1)" aria-label="Plus">&#43;</button>
+        </div>
+        <div class="warning" id="advarsel"></div>
+      </div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-label">Totalt antall ekvivalenter</div>
+      <div class="result-number" id="resultat">0</div>
+      <div class="result-sub" id="resultat-sub">Fyll inn antall barn over</div>
+
+      <div class="breakdown" id="breakdown" style="display:none">
+        <div class="breakdown-row">
+          <span id="over3-tekst">0 barn fra 3 år</span>
+          <span id="over3-ekv">0 ekvivalenter</span>
+        </div>
+        <div class="breakdown-row">
+          <span id="under3-tekst">0 barn under 3 år</span>
+          <span id="under3-ekv">0 ekvivalenter</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Verktøy</h4>
+        <a href="bemanningsnorm-kalkulator.html">Bemanningsnorm</a>
+        <a href="pedagognorm-kalkulator.html">Pedagognorm</a>
+        <a href="grunnbemanningskalkulator.html">Grunnbemanning</a>
+        <a href="ekvivalentkalkulator.html">Ekvivalentkalkulator</a>
+        <a href="plantid-skjema.xlsx">Plantidsskjema</a>
+      </div>
+      <div class="footer-col">
+        <h4>Maler</h4>
+        <a href="periodeplan-mal.docx">Periodeplan</a>
+        <a href="avdelingsmote-referat-mal.docx">Avdelingsmøtereferat</a>
+        <a href="foreldresamtale-mal.docx">Foreldresamtale</a>
+        <a href="perlemaler.html">Perlemaler</a>
+        <a href="fargeleggingsmaler.html">Fargeleggingsmaler</a>
+      </div>
+      <div class="footer-col">
+        <h4>Ressurser</h4>
+        <a href="lovpaalagte-krav.html">Lovpålagte krav</a>
+        <a href="spesialpedagogikk.html">Spesialpedagogikk</a>
+        <a href="barnevern.html">Barnevern</a>
+        <a href="fagforeninger.html">Fagforeninger</a>
+        <a href="nyttige-lenker.html">Nyttige lenker</a>
+      </div>
+      <div class="footer-col">
+        <h4>Om siden</h4>
+        <a href="om-meg.html">Om barnehagekassa.no</a>
+      </div>
+    </div>
+    <div class="footer-bottom">barnehagekassa.no &mdash; gratis ressurser for barnehageansatte</div>
+  </footer>
+
+  <script>
+    function change(id, delta) {
+      const el = document.getElementById(id);
+      const val = parseInt(el.value) || 0;
+      el.value = Math.max(0, Math.min(99, val + delta));
+      beregn();
+    }
+
+    function beregn() {
+      const totalt = Math.max(0, parseInt(document.getElementById('totalt').value) || 0);
+      let under3 = Math.max(0, parseInt(document.getElementById('under3').value) || 0);
+
+      const advarsel = document.getElementById('advarsel');
+
+      if (under3 > totalt) {
+        advarsel.textContent = 'Kan ikke være flere enn totalt antall barn.';
+        under3 = totalt;
+        document.getElementById('under3').value = under3;
+      } else {
+        advarsel.textContent = '';
+      }
+
+      const over3 = totalt - under3;
+      const ekvivalenter = over3 * 1 + under3 * 2;
+
+      document.getElementById('resultat').textContent = ekvivalenter;
+
+      if (totalt === 0) {
+        document.getElementById('resultat-sub').textContent = 'Fyll inn antall barn over';
+        document.getElementById('breakdown').style.display = 'none';
+      } else {
+        document.getElementById('resultat-sub').textContent =
+          ekvivalenter === 1 ? '1 ekvivalent totalt' : ekvivalenter + ' ekvivalenter totalt';
+        document.getElementById('breakdown').style.display = 'block';
+
+        document.getElementById('over3-tekst').textContent =
+          over3 === 1 ? '1 barn fra 3 år' : over3 + ' barn fra 3 år';
+        document.getElementById('over3-ekv').textContent =
+          over3 === 1 ? '1 ekvivalent' : over3 + ' ekvivalenter';
+
+        document.getElementById('under3-tekst').textContent =
+          under3 === 1 ? '1 barn under 3 år' : under3 + ' barn under 3 år';
+        document.getElementById('under3-ekv').textContent =
+          (under3 * 2) === 1 ? '1 ekvivalent' : (under3 * 2) + ' ekvivalenter';
+      }
+    }
+  </script>
+
+</body>
+</html>
