@@ -87,6 +87,14 @@
     .person-chip .chip-sub { font-size: 0.73rem; font-weight: 400; opacity: 0.7; white-space: nowrap; }
     .person-chip .chip-del { background: none; border: none; color: rgba(0,0,0,0.25); cursor: pointer; font-size: 1rem; padding: 0 2px; line-height: 1; transition: color 0.15s; flex-shrink: 0; }
     .person-chip .chip-del:hover { color: #e05555; }
+    .person-chip .chip-edit { background: none; border: none; color: rgba(0,0,0,0.22); cursor: pointer; padding: 0 2px; line-height: 1; transition: color 0.15s; flex-shrink: 0; display: flex; align-items: center; }
+    .person-chip .chip-edit:hover { color: #3d7272; }
+
+    .chip-edit-form { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; width: 100%; }
+    .edit-inp { flex: 1; min-width: 80px; padding: 4px 7px; border: 1.5px solid #3d7272; border-radius: 6px; font-size: 0.82rem; font-family: inherit; outline: none; background: white; }
+    .edit-sel { padding: 4px 6px; border: 1.5px solid #e0dbd3; border-radius: 6px; font-size: 0.8rem; font-family: inherit; outline: none; background: white; flex-shrink: 0; }
+    .edit-save { padding: 4px 10px; border-radius: 6px; background: #3d7272; color: white; border: none; font-size: 0.78rem; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+    .edit-cancel { padding: 4px 8px; border-radius: 6px; background: #f5f2ed; color: #666; border: 1px solid #e0dbd3; font-size: 0.78rem; cursor: pointer; flex-shrink: 0; }
     .pool-empty { color: #ccc; font-size: 0.82rem; text-align: center; padding: 12px 0; }
 
     /* DEPARTMENTS */
@@ -479,8 +487,62 @@
       <span class="dot" style="background:${c.dot};"></span>
       <span class="chip-name">${p.name}</span>
       <span class="chip-sub">${sub}</span>
+      <button class="chip-edit" onclick="startEdit(event,'${p.id}')" title="Rediger">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </button>
       <button class="chip-del" onclick="deletePerson('${p.id}')" title="Fjern">&times;</button>
     </div>`;
+  }
+
+  // ---- INLINE EDIT ----
+  function startEdit(e, id) {
+    e.stopPropagation();
+    e.preventDefault();
+    const p = state.people.find(x => x.id === id);
+    if (!p) return;
+
+    const chip = document.getElementById('chip-' + id);
+    if (!chip) return;
+
+    // Prevent drag while editing
+    chip.setAttribute('draggable', 'false');
+
+    const yearOptions = ['2025','2024','2023','2022','2021','2020','2019','2018']
+      .map(y => `<option value="${y}"${p.year===y?' selected':''}>${y}</option>`).join('');
+    const stillingOptions = ['Pedagogisk leder','Barnehagelærer','Fagarbeider','Assistent','Vikar','Spesialpedagog','Styrer']
+      .map(s => `<option value="${s}"${p.stilling===s?' selected':''}>${s}</option>`).join('');
+    const prosentOptions = ['100','80','60','50','40']
+      .map(v => `<option value="${v}"${(p.prosent||100)==v?' selected':''}>${v}%</option>`).join('');
+
+    const extraFields = p.type === 'barn'
+      ? `<select class="edit-sel" id="edit-year-${id}">${yearOptions}</select>`
+      : `<select class="edit-sel" id="edit-stilling-${id}">${stillingOptions}</select>
+         <select class="edit-sel" id="edit-prosent-${id}" style="width:70px;">${prosentOptions}</select>`;
+
+    chip.innerHTML = `
+      <div class="chip-edit-form" onclick="event.stopPropagation()">
+        <input class="edit-inp" id="edit-name-${id}" value="${p.name}" maxlength="40" placeholder="Navn">
+        ${extraFields}
+        <button class="edit-save" onclick="saveEdit('${id}')">Lagre</button>
+        <button class="edit-cancel" onclick="render()">Avbryt</button>
+      </div>`;
+  }
+
+  function saveEdit(id) {
+    const p = state.people.find(x => x.id === id);
+    if (!p) return;
+    const nameEl = document.getElementById('edit-name-' + id);
+    if (nameEl) p.name = nameEl.value.trim() || p.name;
+    if (p.type === 'barn') {
+      const yearEl = document.getElementById('edit-year-' + id);
+      if (yearEl) p.year = yearEl.value;
+    } else {
+      const stilEl = document.getElementById('edit-stilling-' + id);
+      if (stilEl) p.stilling = stilEl.value;
+      const prosEl = document.getElementById('edit-prosent-' + id);
+      if (prosEl) p.prosent = parseInt(prosEl.value);
+    }
+    render();
   }
 
   function renderPool() {
