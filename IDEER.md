@@ -60,6 +60,7 @@ _Notat laget 21. mars 2026 — sist oppdatert 23. mars 2026_
 - **Overgang barnehage til skole** — Udirs veileder, samarbeidsskjemaer og sjekklister for overgangssamtalen (særlig relevant om våren)
 - **Digital kompetanse for barn** — Lær Kidsa Koding og Kodeklubben har gratis opplegg tilpasset barnehagealder
 - **HMS og trivsel for ansatte** — Arbeidstilsynets veileder for psykososialt arbeidsmiljø i barnehagen, fagforeningenes HMS-ressurser
+- **Regelverk i barnehage** — tips fra kollega (24. mars): fylle ut nærmere
 - **Flerkulturell kompetanse** — utvide NAFO-lenker under spesialpedagogikk, ressurser for flerspråklige barn
 
 ---
