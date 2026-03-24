@@ -301,11 +301,11 @@
       <div class="card">
         <div class="card-body">
           <div class="legend-section">
-            <div class="legend-title">Fargekode barn (fødselsår)</div>
+            <div class="legend-title">Fargekoder for barn (fødselsår)</div>
             <div class="legend-items" id="legendBarn"></div>
           </div>
           <div class="legend-section" style="margin-bottom:0;">
-            <div class="legend-title">Fargekode ansatte</div>
+            <div class="legend-title">Fargekoder for ansatte</div>
             <div class="legend-items" id="legendAnsatte"></div>
           </div>
         </div>
@@ -325,7 +325,7 @@
             style="padding:8px 12px;border:1.5px solid #e8e3db;border-radius:8px;font-size:0.9rem;font-family:inherit;outline:none;">
           <div style="display:flex;gap:6px;flex-wrap:wrap;" id="deptTypeButtons">
             <button class="dept-type-btn active" data-type="storbarn" onclick="selectDeptType(this)">Storbarn (3+ år)</button>
-            <button class="dept-type-btn" data-type="smabarn" onclick="selectDeptType(this)">Smallbarn (0-2 år)</button>
+            <button class="dept-type-btn" data-type="smabarn" onclick="selectDeptType(this)">Småbarn (0-2 år)</button>
             <button class="dept-type-btn" data-type="mellom" onclick="selectDeptType(this)">Mellomavdeling</button>
           </div>
           <div style="display:flex;gap:8px;">
@@ -596,7 +596,7 @@
 
   const DEPT_TYPE_LABELS = {
     storbarn: { label: 'Storbarn', cls: 'badge-storbarn' },
-    smabarn:  { label: 'Smallbarn', cls: 'badge-smabarn' },
+    smabarn:  { label: 'Småbarn', cls: 'badge-smabarn' },
     mellom:   { label: 'Mellom', cls: 'badge-mellom' },
   };
 
@@ -610,7 +610,7 @@
       const typeSelect = `<select class="dept-type-select" onchange="changeDeptType('${d.id}',this.value)">
           <option value="" ${!d.type?'selected':''}>Ingen type</option>
           <option value="storbarn" ${d.type==='storbarn'?'selected':''}>Storbarn</option>
-          <option value="smabarn"  ${d.type==='smabarn' ?'selected':''}>Smallbarn</option>
+          <option value="smabarn"  ${d.type==='smabarn' ?'selected':''}>Småbarn</option>
           <option value="mellom"   ${d.type==='mellom'  ?'selected':''}>Mellom</option>
         </select>`;
       return `<div class="dept-card" id="dept-${d.id}"
