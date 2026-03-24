@@ -322,9 +322,7 @@
         // The slice that's at the top
         const normalised = (((-currentAngle) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
         const slice = (Math.PI * 2) / names.length;
-        // Add half slice offset because drawWheel starts at -PI/2
-        const adjusted = (normalised + Math.PI / 2 + Math.PI * 2) % (Math.PI * 2);
-        const winnerIndex = Math.floor(adjusted / slice) % names.length;
+        const winnerIndex = Math.floor(normalised / slice) % names.length;
 
         // Redraw with highlight
         const ctx2 = canvas.getContext('2d');
