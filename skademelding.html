@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skademeldingsskjema – barnehagekassa.no</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f2ed; color: #1a1a1a; min-height: 100vh; }
+
+    .site-header { background: white; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e8e3db; position: relative; }
+    .site-header img { height: 44px; width: auto; display: block; }
+    nav { display: flex; gap: 24px; align-items: center; }
+    nav a { color: #444; text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: color 0.15s; }
+    nav a:hover { color: #3d7272; }
+    .burger { display: none !important; flex-direction: column; justify-content: center; gap: 5px; width: 38px; height: 38px; background: none; border: none; cursor: pointer; padding: 4px; border-radius: 8px; transition: background 0.15s; }
+    .burger:hover { background: #f5f2ed; }
+    .burger span { display: block; width: 22px; height: 2px; background: #444; border-radius: 2px; transition: transform 0.25s ease, opacity 0.2s; }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobil-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border-bottom: 2px solid #e8e3db; box-shadow: 0 8px 24px rgba(0,0,0,0.10); flex-direction: column; padding: 8px 0 12px; z-index: 1000; }
+    .mobil-nav.open { display: flex; }
+    .mobil-nav a { padding: 12px 24px; color: #333; text-decoration: none; font-size: 1rem; font-weight: 500; border-bottom: 1px solid #f5f2ed; transition: background 0.12s, color 0.12s; }
+    .mobil-nav a:last-child { border-bottom: none; }
+    .mobil-nav a:hover { background: #f5f9f9; color: #3d7272; }
+    @media (max-width: 700px) { nav { display: none !important; } .burger { display: flex !important; } .site-header { padding: 12px 20px; } }
+    @media (min-width: 701px) { .mobil-nav { display: none !important; } }
+
+    .page-hero { background: #3d7272; color: white; padding: 52px 32px 44px; text-align: center; }
+    .page-hero h1 { font-size: 2rem; font-weight: 900; font-family: 'Quicksand', 'Segoe UI', Arial, sans-serif; margin-bottom: 10px; }
+    .page-hero p { color: rgba(255,255,255,0.90); font-size: 1rem; max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+    .page { max-width: 760px; margin: 0 auto; padding: 36px 24px 80px; }
+
+    /* TABS */
+    .tab-bar { display: flex; gap: 0; background: #e8e3db; border-radius: 12px; padding: 4px; margin-bottom: 28px; }
+    .tab-btn { flex: 1; padding: 10px 16px; border-radius: 9px; font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: center; border: none; background: transparent; color: #777; transition: background 0.15s, color 0.15s; font-family: inherit; }
+    .tab-btn.active { background: white; color: #3d7272; box-shadow: 0 2px 6px rgba(0,0,0,0.10); }
+
+    /* ACTION BAR */
+    .action-bar { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 22px; border-radius: 100px; font-size: 0.88rem; font-weight: 700; border: none; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; font-family: inherit; }
+    .btn-primary { background: #3d7272; color: white; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(61,114,114,0.25); }
+    .btn-secondary { background: #f5f2ed; color: #555; border: 1.5px solid #e0dbd3; }
+    .btn-secondary:hover { background: #e4f2f2; color: #3d7272; }
+
+    /* FORM */
+    .form-section { background: white; border-radius: 16px; border: 1px solid #e8e3db; padding: 28px; margin-bottom: 18px; }
+    .section-title { font-size: 0.75rem; font-weight: 700; color: #3d7272; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .section-title::before { content: ''; display: inline-block; width: 14px; height: 2.5px; border-radius: 2px; background: #3d7272; }
+
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .field-grid { grid-template-columns: 1fr; } }
+    .field-full { grid-column: 1 / -1; }
+
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 0.76rem; font-weight: 700; color: #777; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field input, .field select, .field textarea {
+      padding: 9px 12px; border: 1.5px solid #e8e3db; border-radius: 9px;
+      font-size: 0.92rem; font-family: inherit; color: #1a1a1a;
+      background: #faf9f7; outline: none; transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #3d7272; background: white; }
+    .field textarea { resize: vertical; min-height: 80px; }
+
+    .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .radio-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 100px; border: 1.5px solid #e8e3db; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #555; transition: border-color 0.15s, background 0.15s; background: white; user-select: none; }
+    .radio-pill input[type=radio] { display: none; }
+    .radio-pill:has(input:checked) { background: #e4f2f2; border-color: #3d7272; color: #3d7272; }
+
+    .sign-row { display: flex; gap: 16px; }
+    @media (max-width: 560px) { .sign-row { flex-direction: column; } }
+
+    /* PRINT STYLES */
+    @media print {
+      .site-header, .page-hero, .tab-bar, .action-bar, footer, nav, .mobil-nav, .burger { display: none !important; }
+      body { background: white; font-size: 11pt; }
+      .page { max-width: 100%; padding: 0; margin: 0; }
+      .form-section { border: 1px solid #ccc; border-radius: 6px; margin-bottom: 14px; page-break-inside: avoid; box-shadow: none; padding: 18px; }
+      .field input, .field select, .field textarea { background: white; border-color: #bbb; font-size: 10pt; }
+      .print-header { display: block !important; }
+      #formBarn, #formAnsatt { display: block !important; }
+      .form-hidden-print { display: none !important; }
+    }
+
+    .print-header {
+      display: none;
+      font-family: 'Quicksand', 'Segoe UI', Arial;
+      font-size: 16pt;
+      font-weight: 900;
+      color: #3d7272;
+      margin-bottom: 18px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #3d7272;
+    }
+    .print-sub { font-size: 10pt; color: #777; font-weight: 400; margin-top: 2px; }
+
+    footer { text-align: center; padding: 32px 24px; font-size: 0.8rem; color: #bbb; border-top: 1px solid #e8e3db; }
+  </style>
+</head>
+<body>
+
+<div class="site-header">
+  <a href="index.html"><img src="logo.png" alt="barnehagekassa.no"></a>
+  <nav>
+    <a href="index.html">Hjem</a>
+    <a href="aktivitetsgenerator.html">Verktøy</a>
+    <a href="periodeplan.html">Maler</a>
+    <a href="barnehageressurser.html">Ressurser</a>
+    <a href="om-meg.html">Om</a>
+  </nav>
+  <button class="burger" id="burgerBtn" aria-label="Meny"><span></span><span></span><span></span></button>
+</div>
+<nav class="mobil-nav" id="mobilNav">
+  <a href="index.html">Hjem</a>
+  <a href="aktivitetsgenerator.html">Verktøy</a>
+  <a href="periodeplan.html">Maler</a>
+  <a href="barnehageressurser.html">Ressurser</a>
+  <a href="om-meg.html">Om</a>
+</nav>
+
+<div class="page-hero">
+  <h1>Skademeldingsskjema</h1>
+  <p>Fyll ut skjemaet digitalt og lagre som PDF. Ingen vannmerke, ingen pålogging.</p>
+</div>
+
+<div class="page">
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabBarn" onclick="switchTab('barn')">Skade på barn</button>
+    <button class="tab-btn" id="tabAnsatt" onclick="switchTab('ansatt')">Arbeidsulykke (ansatt)</button>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-primary" onclick="printForm()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Lagre som PDF / skriv ut
+    </button>
+    <button class="btn btn-secondary" onclick="clearForm()">Tøm skjemaet</button>
+  </div>
+
+  <!-- ===== SKADE PÅ BARN ===== -->
+  <div id="formBarn">
+
+    <div class="print-header">
+      Skademelding for barn
+      <div class="print-sub">barnehagekassa.no &nbsp;&middot;&nbsp; Intern skademelding</div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Om barnehagen</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Barnehagens navn</label>
+          <input type="text" id="b_barnehage" placeholder="Navn på barnehage">
+        </div>
+        <div class="field">
+          <label>Avdeling</label>
+          <input type="text" id="b_avdeling" placeholder="Avdelingens navn">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Om barnet</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Barnets navn</label>
+          <input type="text" id="b_navn" placeholder="For- og etternavn">
+        </div>
+        <div class="field">
+          <label>Fødselsdato</label>
+          <input type="date" id="b_fdato">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Hendelsen</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Dato</label>
+          <input type="date" id="b_hdato">
+        </div>
+        <div class="field">
+          <label>Klokkeslett</label>
+          <input type="time" id="b_htid">
+        </div>
+        <div class="field">
+          <label>Sted (inne/ute/tur)</label>
+          <input type="text" id="b_sted" placeholder="F.eks. uteområdet, garderobe">
+        </div>
+        <div class="field">
+          <label>Aktivitet</label>
+          <input type="text" id="b_aktivitet" placeholder="F.eks. lek, måltid, toalettbesøk">
+        </div>
+        <div class="field field-full">
+          <label>Hva skjedde?</label>
+          <textarea id="b_hva" placeholder="Beskriv hendelsesforløpet så nøyaktig som mulig..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Skaden</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Skadet kroppsdel</label>
+          <input type="text" id="b_kroppsdel" placeholder="F.eks. panne, kne, tann">
+        </div>
+        <div class="field">
+          <label>Skadetype</label>
+          <input type="text" id="b_skadetype" placeholder="F.eks. kutt, blåmerke, brudd">
+        </div>
+        <div class="field field-full">
+          <label>Alvorlighetsgrad</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="b_alvor" value="Lett"> Lett</label>
+            <label class="radio-pill"><input type="radio" name="b_alvor" value="Moderat"> Moderat</label>
+            <label class="radio-pill"><input type="radio" name="b_alvor" value="Alvorlig"> Alvorlig</label>
+            <label class="radio-pill"><input type="radio" name="b_alvor" value="Krever lege"> Krever lege</label>
+          </div>
+        </div>
+        <div class="field field-full">
+          <label>Tiltak og førstehjelp som ble gitt</label>
+          <textarea id="b_tiltak" placeholder="F.eks. vasket sår, ispose, plaster, sendt til lege..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Tilstedeværelse og varsling</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Hvem var til stede?</label>
+          <input type="text" id="b_tilstede" placeholder="Ansattes navn(e)">
+        </div>
+        <div class="field">
+          <label>Andre vitner / andre barn</label>
+          <input type="text" id="b_vitner" placeholder="Navn eller antall">
+        </div>
+        <div class="field field-full">
+          <label>Varslet foresatte?</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="b_varslet" value="Ja, samme dag"> Ja, samme dag</label>
+            <label class="radio-pill"><input type="radio" name="b_varslet" value="Ja, neste dag"> Ja, neste dag</label>
+            <label class="radio-pill"><input type="radio" name="b_varslet" value="Nei"> Nei</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Hvem varslet?</label>
+          <input type="text" id="b_hvemvarslet" placeholder="Ansattes navn">
+        </div>
+        <div class="field">
+          <label>Klokkeslett for varsling</label>
+          <input type="time" id="b_varslettid">
+        </div>
+        <div class="field field-full">
+          <label>Informert styrer?</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="b_styrer" value="Ja"> Ja</label>
+            <label class="radio-pill"><input type="radio" name="b_styrer" value="Nei"> Nei</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Styrers navn</label>
+          <input type="text" id="b_styrernavn" placeholder="Navn">
+        </div>
+        <div class="field">
+          <label>Dato informert</label>
+          <input type="date" id="b_styrerdato">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Forebygging</div>
+      <div class="field-grid">
+        <div class="field field-full">
+          <label>Hva kan gjøres for å forhindre lignende hendelser?</label>
+          <textarea id="b_forebygg" placeholder="Tiltak, endringer i rutiner eller fysisk miljø..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Underskrift</div>
+      <div class="sign-row">
+        <div class="field" style="flex:2;">
+          <label>Rapport skrevet av</label>
+          <input type="text" id="b_sign" placeholder="Navn og stilling">
+        </div>
+        <div class="field" style="flex:1;">
+          <label>Dato</label>
+          <input type="date" id="b_signdato">
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /formBarn -->
+
+
+  <!-- ===== ARBEIDSULYKKE ANSATT ===== -->
+  <div id="formAnsatt" style="display:none;">
+
+    <div class="print-header">
+      Skademelding ved arbeidsulykke
+      <div class="print-sub">barnehagekassa.no &nbsp;&middot;&nbsp; Intern skademelding</div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Om barnehagen</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Barnehagens navn</label>
+          <input type="text" id="a_barnehage" placeholder="Navn på barnehage">
+        </div>
+        <div class="field">
+          <label>Avdeling</label>
+          <input type="text" id="a_avdeling" placeholder="Avdelingens navn">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Om den skadede ansatte</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Navn</label>
+          <input type="text" id="a_navn" placeholder="For- og etternavn">
+        </div>
+        <div class="field">
+          <label>Fødselsdato</label>
+          <input type="date" id="a_fdato">
+        </div>
+        <div class="field">
+          <label>Stilling</label>
+          <input type="text" id="a_stilling" placeholder="F.eks. assistent, pedagog">
+        </div>
+        <div class="field">
+          <label>Ansettelsesforhold</label>
+          <div class="radio-group" style="margin-top:4px;">
+            <label class="radio-pill"><input type="radio" name="a_ans" value="Fast"> Fast</label>
+            <label class="radio-pill"><input type="radio" name="a_ans" value="Deltid"> Deltid</label>
+            <label class="radio-pill"><input type="radio" name="a_ans" value="Vikar"> Vikar</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Hendelsen</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Dato</label>
+          <input type="date" id="a_hdato">
+        </div>
+        <div class="field">
+          <label>Klokkeslett</label>
+          <input type="time" id="a_htid">
+        </div>
+        <div class="field">
+          <label>Sted (inne/ute/tur)</label>
+          <input type="text" id="a_sted" placeholder="F.eks. uteområdet, kjøkken">
+        </div>
+        <div class="field">
+          <label>Aktivitet</label>
+          <input type="text" id="a_aktivitet" placeholder="F.eks. løfting, lek med barn">
+        </div>
+        <div class="field field-full">
+          <label>Hva skjedde?</label>
+          <textarea id="a_hva" placeholder="Beskriv hendelsesforløpet nøyaktig..."></textarea>
+        </div>
+        <div class="field field-full">
+          <label>Hva mener du var årsak til ulykken?</label>
+          <textarea id="a_aarsak" placeholder="F.eks. glatt gulv, manglende opplæring, utstyr..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Skaden</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Skadet kroppsdel</label>
+          <input type="text" id="a_kroppsdel" placeholder="F.eks. rygg, skulder, kne">
+        </div>
+        <div class="field">
+          <label>Skadetype</label>
+          <input type="text" id="a_skadetype" placeholder="F.eks. forstuing, kutt, brudd">
+        </div>
+        <div class="field field-full">
+          <label>Alvorlighetsgrad</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="a_alvor" value="Lett"> Lett</label>
+            <label class="radio-pill"><input type="radio" name="a_alvor" value="Moderat"> Moderat</label>
+            <label class="radio-pill"><input type="radio" name="a_alvor" value="Alvorlig"> Alvorlig</label>
+            <label class="radio-pill"><input type="radio" name="a_alvor" value="Sykefravær"> Sykefravær</label>
+          </div>
+        </div>
+        <div class="field field-full">
+          <label>Medisinsk behandling</label>
+          <textarea id="a_behandling" placeholder="F.eks. egenbehandling, legevakt, sykehus..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Vitner og varsling</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Vitner (navn)</label>
+          <input type="text" id="a_vitner" placeholder="Navn på kollegaer som var til stede">
+        </div>
+        <div class="field">
+          <label>Informert leder</label>
+          <input type="text" id="a_leder" placeholder="Navn og dato">
+        </div>
+        <div class="field field-full">
+          <label>Meldt til NAV?</label>
+          <div class="radio-group">
+            <label class="radio-pill"><input type="radio" name="a_nav" value="Ja"> Ja (yrkesskade)</label>
+            <label class="radio-pill"><input type="radio" name="a_nav" value="Ikke nødvendig"> Ikke nødvendig</label>
+            <label class="radio-pill"><input type="radio" name="a_nav" value="Avventes"> Avventes</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Forebygging</div>
+      <div class="field-grid">
+        <div class="field field-full">
+          <label>Hva kan gjøres for å forhindre lignende ulykker?</label>
+          <textarea id="a_forebygg" placeholder="Tiltak, endringer i rutiner, opplæring, fysisk miljø..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-title">Underskrift</div>
+      <div class="sign-row">
+        <div class="field" style="flex:2;">
+          <label>Skjema utfylt av</label>
+          <input type="text" id="a_sign" placeholder="Navn (kan være den skadede selv)">
+        </div>
+        <div class="field" style="flex:1;">
+          <label>Dato</label>
+          <input type="date" id="a_signdato">
+        </div>
+      </div>
+      <div class="sign-row" style="margin-top:12px;">
+        <div class="field" style="flex:2;">
+          <label>Bekreftet av leder</label>
+          <input type="text" id="a_ledersign" placeholder="Lederens navn">
+        </div>
+        <div class="field" style="flex:1;">
+          <label>Dato</label>
+          <input type="date" id="a_lederdato">
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /formAnsatt -->
+
+</div><!-- /page -->
+
+<footer>
+  <a href="index.html" style="color:#3d7272;text-decoration:none;font-weight:600;">barnehagekassa.no</a>
+  &nbsp;&middot;&nbsp; Gratis verktøy for barnehageansatte
+</footer>
+
+<script>
+  // Burger
+  document.getElementById('burgerBtn').addEventListener('click', function() {
+    this.classList.toggle('open');
+    document.getElementById('mobilNav').classList.toggle('open');
+  });
+
+  let currentTab = 'barn';
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('formBarn').style.display   = tab === 'barn'   ? '' : 'none';
+    document.getElementById('formAnsatt').style.display = tab === 'ansatt' ? '' : 'none';
+    document.getElementById('tabBarn').classList.toggle('active',   tab === 'barn');
+    document.getElementById('tabAnsatt').classList.toggle('active', tab === 'ansatt');
+  }
+
+  function printForm() {
+    window.print();
+  }
+
+  function clearForm() {
+    if (!confirm('Tøm alle feltene i dette skjemaet?')) return;
+    const prefix = currentTab === 'barn' ? 'b_' : 'a_';
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+      if (el.id && el.id.startsWith(prefix)) {
+        if (el.type === 'radio') { el.checked = false; }
+        else { el.value = ''; }
+      }
+    });
+    // Also uncheck radio pills in current form
+    const formId = currentTab === 'barn' ? 'formBarn' : 'formAnsatt';
+    document.querySelectorAll('#' + formId + ' input[type=radio]').forEach(r => r.checked = false);
+  }
+
+  // Auto-fill today's date for date fields
+  const today = new Date().toISOString().slice(0, 10);
+  ['b_hdato','b_signdato','a_hdato','a_signdato','a_lederdato'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = today;
+  });
+</script>
+</body>
+</html>
