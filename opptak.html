@@ -125,6 +125,8 @@
     .badge-storbarn { background: #e0f0fe; color: #3a7ab8; }
     .badge-smabarn { background: #fce8ee; color: #e87097; }
     .badge-mellom { background: #e4f7ef; color: #3ab882; }
+    .dept-type-select { font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 20px; border: 1.5px solid #e0dbd3; background: white; color: #555; cursor: pointer; font-family: inherit; outline: none; flex-shrink: 0; transition: border-color 0.15s; }
+    .dept-type-select:focus { border-color: #3d7272; }
 
     .norm-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0ebe4; font-size: 0.82rem; }
     .norm-row:last-child { border-bottom: none; }
@@ -568,9 +570,12 @@
       const barn = assigned.filter(p => p.type === 'barn');
       const ansatte = assigned.filter(p => p.type === 'ansatt');
       const dotColor = DEPT_COLORS[i % DEPT_COLORS.length];
-      const typeMeta = DEPT_TYPE_LABELS[d.type] || null;
-      const typeBadge = typeMeta
-        ? `<span class="dept-type-badge ${typeMeta.cls}">${typeMeta.label}</span>` : '';
+      const typeSelect = `<select class="dept-type-select" onchange="changeDeptType('${d.id}',this.value)">
+          <option value="" ${!d.type?'selected':''}>Ingen type</option>
+          <option value="storbarn" ${d.type==='storbarn'?'selected':''}>Storbarn</option>
+          <option value="smabarn"  ${d.type==='smabarn' ?'selected':''}>Smallbarn</option>
+          <option value="mellom"   ${d.type==='mellom'  ?'selected':''}>Mellom</option>
+        </select>`;
       return `<div class="dept-card" id="dept-${d.id}"
         ondragover="onDragOver(event, '${d.id}')"
         ondragleave="onDragLeave(event)"
@@ -579,7 +584,7 @@
           <span class="dept-color-dot" style="background:${dotColor};"></span>
           <input class="dept-name-input" value="${d.name}" placeholder="Avdelingsnavn"
             onchange="renameDept('${d.id}', this.value)" />
-          ${typeBadge}
+          ${typeSelect}
           <button class="dept-del-btn" onclick="deleteDept('${d.id}')" title="Slett avdeling">&times;</button>
         </div>
         <div class="dept-body">
