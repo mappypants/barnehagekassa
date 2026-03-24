@@ -147,6 +147,7 @@
     .legend-items { display: flex; flex-direction: column; gap: 5px; }
     .legend-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #555; }
     .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .color-pick { width: 20px; height: 20px; border: none; border-radius: 4px; padding: 0; cursor: pointer; background: none; flex-shrink: 0; }
 
     /* PRINT */
     .print-area { display: none; }
@@ -350,16 +351,30 @@
 
 <script>
   // ---- CONFIG ----
-  const BARN_COLORS = {
-    '2025': { bg: '#fce8ee', dot: '#e87097', label: '2025' },
-    '2024': { bg: '#fef0e0', dot: '#e8943a', label: '2024' },
-    '2023': { bg: '#fefce0', dot: '#c8a800', label: '2023' },
-    '2022': { bg: '#e4f7ef', dot: '#3ab882', label: '2022' },
-    '2021': { bg: '#e0f0fe', dot: '#3a8ee8', label: '2021' },
-    '2020': { bg: '#ede0fe', dot: '#8e3ae8', label: '2020' },
-    '2019': { bg: '#fce0f7', dot: '#c03aaa', label: '2019' },
-    '2018': { bg: '#e0e0e0', dot: '#666',    label: '2018' },
+  const DEFAULT_BARN_COLORS = {
+    '2025': '#e87097',
+    '2024': '#e8943a',
+    '2023': '#c8a800',
+    '2022': '#3ab882',
+    '2021': '#3a8ee8',
+    '2020': '#8e3ae8',
+    '2019': '#c03aaa',
+    '2018': '#666666',
   };
+
+  // Compute a light background tint from a hex dot colour (80% white blend)
+  function dotToBg(hex) {
+    hex = hex.replace('#','');
+    if (hex.length === 3) hex = hex.split('').map(c=>c+c).join('');
+    const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+    const mix = v => Math.round(v * 0.22 + 255 * 0.78);
+    return '#' + [mix(r),mix(g),mix(b)].map(v=>v.toString(16).padStart(2,'0')).join('');
+  }
+
+  function getBarnColor(year) {
+    const dot = (state.barnColors && state.barnColors[year]) || DEFAULT_BARN_COLORS[year] || '#aaaaaa';
+    return { dot, bg: dotToBg(dot) };
+  }
 
   const ANSATT_COLORS = {
     'Pedagogisk leder': { bg: '#e4f2f2', dot: '#3d7272', label: 'Pedagogisk leder' },
@@ -380,14 +395,18 @@
   function loadState() {
     try {
       const s = JSON.parse(localStorage.getItem('opptak_state') || 'null');
-      if (s) return s;
+      if (s) {
+        if (!s.barnColors) s.barnColors = { ...DEFAULT_BARN_COLORS };
+        return s;
+      }
     } catch(e) {}
     return {
-      people: [],   // { id, name, type:'barn'|'ansatt', year|stilling, dept: null|deptId }
+      people: [],
       depts: [
         { id: 'd1', name: 'Avdeling 1' },
         { id: 'd2', name: 'Avdeling 2' },
       ],
+      barnColors: { ...DEFAULT_BARN_COLORS },
       nextId: 1
     };
   }
@@ -480,7 +499,7 @@
   }
 
   function personColor(p) {
-    if (p.type === 'barn') return BARN_COLORS[p.year] || { bg: '#f0f0f0', dot: '#aaa' };
+    if (p.type === 'barn') return getBarnColor(p.year);
     return ANSATT_COLORS[p.stilling] || { bg: '#f0f0f0', dot: '#aaa' };
   }
 
@@ -621,13 +640,26 @@
 
   function renderLegend() {
     document.getElementById('legendBarn').innerHTML =
-      Object.values(BARN_COLORS).map(c =>
-        `<div class="legend-row"><span class="legend-dot" style="background:${c.dot};"></span>${c.label}</div>`
-      ).join('');
+      Object.keys(DEFAULT_BARN_COLORS).map(year => {
+        const dot = (state.barnColors && state.barnColors[year]) || DEFAULT_BARN_COLORS[year];
+        return `<div class="legend-row">
+          <input type="color" class="color-pick" value="${dot}"
+            title="Endre farge for ${year}"
+            onchange="changeBarnColor('${year}', this.value)">
+          <span class="legend-dot" style="background:${dot};"></span>
+          <span>${year}</span>
+        </div>`;
+      }).join('');
     document.getElementById('legendAnsatte').innerHTML =
       Object.values(ANSATT_COLORS).map(c =>
         `<div class="legend-row"><span class="legend-dot" style="background:${c.dot};"></span>${c.label}</div>`
       ).join('');
+  }
+
+  function changeBarnColor(year, hex) {
+    if (!state.barnColors) state.barnColors = { ...DEFAULT_BARN_COLORS };
+    state.barnColors[year] = hex;
+    render();
   }
 
   // ---- ADD ----
@@ -764,7 +796,7 @@
   // ---- RESET ----
   function resetAll() {
     if (!confirm('Nullstille alt? Alle barn, ansatte og avdelinger slettes.')) return;
-    state = { people: [], depts: [{ id: 'd1', name: 'Avdeling 1' }, { id: 'd2', name: 'Avdeling 2' }], nextId: 1 };
+    state = { people: [], depts: [{ id: 'd1', name: 'Avdeling 1' }, { id: 'd2', name: 'Avdeling 2' }], barnColors: { ...DEFAULT_BARN_COLORS }, nextId: 1 };
     render();
   }
 
