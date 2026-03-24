@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opptaksplanlegger – barnehagekassa.no</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f2ed; color: #1a1a1a; min-height: 100vh; }
+
+    /* HEADER */
+    .site-header { background: white; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e8e3db; position: relative; }
+    .site-header img { height: 44px; width: auto; display: block; }
+    nav { display: flex; gap: 24px; align-items: center; }
+    nav a { color: #444; text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: color 0.15s; }
+    nav a:hover { color: #3d7272; }
+    .burger { display: none !important; flex-direction: column; justify-content: center; gap: 5px; width: 38px; height: 38px; background: none; border: none; cursor: pointer; padding: 4px; border-radius: 8px; transition: background 0.15s; }
+    .burger:hover { background: #f5f2ed; }
+    .burger span { display: block; width: 22px; height: 2px; background: #444; border-radius: 2px; transition: transform 0.25s ease, opacity 0.2s; }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobil-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border-bottom: 2px solid #e8e3db; box-shadow: 0 8px 24px rgba(0,0,0,0.10); flex-direction: column; padding: 8px 0 12px; z-index: 1000; }
+    .mobil-nav.open { display: flex; }
+    .mobil-nav a { padding: 12px 24px; color: #333; text-decoration: none; font-size: 1rem; font-weight: 500; border-bottom: 1px solid #f5f2ed; transition: background 0.12s, color 0.12s; }
+    .mobil-nav a:last-child { border-bottom: none; }
+    .mobil-nav a:hover { background: #f5f9f9; color: #3d7272; }
+    @media (max-width: 700px) { nav { display: none !important; } .burger { display: flex !important; } .site-header { padding: 12px 20px; } }
+    @media (min-width: 701px) { .mobil-nav { display: none !important; } }
+
+    .page-hero { background: #3d7272; color: white; padding: 52px 32px 44px; text-align: center; }
+    .page-hero h1 { font-size: 2rem; font-weight: 900; font-family: 'Quicksand', 'Segoe UI', Arial, sans-serif; margin-bottom: 10px; }
+    .page-hero p { color: rgba(255,255,255,0.90); font-size: 1rem; max-width: 560px; margin: 0 auto; line-height: 1.6; }
+
+    .page { max-width: 1200px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    /* TOP BAR */
+    .topbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+    .topbar-title { font-size: 0.78rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.8px; }
+    .btn { display: inline-block; padding: 9px 20px; border-radius: 100px; font-size: 0.88rem; font-weight: 700; border: none; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; text-decoration: none; }
+    .btn-primary { background: #3d7272; color: white; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(61,114,114,0.25); }
+    .btn-secondary { background: #f5f2ed; color: #3d7272; border: 1.5px solid #e0dbd3; }
+    .btn-secondary:hover { background: #e4f2f2; }
+    .btn-danger { background: #fff0f0; color: #c0392b; border: 1.5px solid #fad4d4; }
+    .btn-danger:hover { background: #fce0e0; }
+
+    /* MAIN LAYOUT */
+    .main-layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 860px) { .main-layout { grid-template-columns: 1fr; } }
+
+    /* SIDEBAR */
+    .sidebar { display: flex; flex-direction: column; gap: 16px; }
+    .card { background: white; border-radius: 16px; border: 1px solid #e8e3db; overflow: hidden; }
+    .card-head { padding: 14px 18px; border-bottom: 1px solid #f0ebe4; display: flex; align-items: center; justify-content: space-between; }
+    .card-head h3 { font-size: 0.82rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.6px; }
+    .card-body { padding: 14px 18px; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 0; background: #f5f2ed; border-radius: 10px; padding: 3px; margin-bottom: 14px; }
+    .tab { flex: 1; padding: 7px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; text-align: center; border: none; background: transparent; color: #888; transition: background 0.15s, color 0.15s; }
+    .tab.active { background: white; color: #3d7272; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+    /* ADD FORM */
+    .add-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .add-form input, .add-form select { padding: 8px 12px; border: 1.5px solid #e8e3db; border-radius: 8px; font-size: 0.9rem; font-family: inherit; background: white; color: #1a1a1a; outline: none; transition: border-color 0.15s; width: 100%; }
+    .add-form input:focus, .add-form select:focus { border-color: #3d7272; }
+    .add-form button { padding: 8px 16px; border-radius: 8px; background: #3d7272; color: white; border: none; font-size: 0.88rem; font-weight: 700; cursor: pointer; }
+    .add-form button:hover { background: #2a5252; }
+
+    /* POOL (draggable people) */
+    .pool { display: flex; flex-direction: column; gap: 4px; min-height: 60px; }
+    .person-chip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; border-radius: 10px; cursor: grab;
+      transition: box-shadow 0.15s, opacity 0.15s;
+      border: 1.5px solid transparent;
+      font-size: 0.88rem; font-weight: 600;
+      user-select: none;
+    }
+    .person-chip:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+    .person-chip.dragging { opacity: 0.45; }
+    .person-chip .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .person-chip .chip-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .person-chip .chip-sub { font-size: 0.73rem; font-weight: 400; opacity: 0.7; white-space: nowrap; }
+    .person-chip .chip-del { background: none; border: none; color: rgba(0,0,0,0.25); cursor: pointer; font-size: 1rem; padding: 0 2px; line-height: 1; transition: color 0.15s; flex-shrink: 0; }
+    .person-chip .chip-del:hover { color: #e05555; }
+    .pool-empty { color: #ccc; font-size: 0.82rem; text-align: center; padding: 12px 0; }
+
+    /* DEPARTMENTS */
+    .dept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+
+    .dept-card { background: white; border-radius: 14px; border: 1.5px solid #e8e3db; overflow: hidden; transition: border-color 0.2s; }
+    .dept-card.drag-over { border-color: #3d7272; box-shadow: 0 0 0 3px rgba(61,114,114,0.12); }
+
+    .dept-head { padding: 12px 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0ebe4; }
+    .dept-color-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+    .dept-name-input { font-size: 0.9rem; font-weight: 700; color: #1a1a1a; border: none; outline: none; background: transparent; flex: 1; min-width: 0; font-family: inherit; }
+    .dept-name-input::placeholder { color: #ccc; }
+    .dept-del-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1rem; flex-shrink: 0; transition: color 0.15s; }
+    .dept-del-btn:hover { color: #e05555; }
+
+    .dept-body { padding: 10px 12px; min-height: 80px; }
+    .dept-section-label { font-size: 0.68rem; font-weight: 700; color: #bbb; text-transform: uppercase; letter-spacing: 0.5px; margin: 6px 0 4px; }
+    .dept-drop-zone { min-height: 40px; border-radius: 8px; padding: 4px; transition: background 0.2s; }
+    .dept-drop-zone.drag-over-zone { background: #e4f2f2; }
+    .dept-count { font-size: 0.7rem; color: #aaa; padding: 6px 0 2px; }
+
+    .add-dept-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 18px; border-radius: 14px; border: 2px dashed #d8d2ca; background: transparent; cursor: pointer; color: #aaa; font-size: 0.88rem; font-weight: 700; transition: border-color 0.15s, color 0.15s; width: 100%; }
+    .add-dept-btn:hover { border-color: #3d7272; color: #3d7272; }
+
+    /* LEGEND */
+    .legend-section { margin-bottom: 20px; }
+    .legend-title { font-size: 0.72rem; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+    .legend-items { display: flex; flex-direction: column; gap: 5px; }
+    .legend-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #555; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+    /* PRINT */
+    .print-area { display: none; }
+
+    @media print {
+      .site-header, .page-hero, .topbar, .sidebar, .add-dept-btn, .dept-del-btn, .chip-del,
+      .btn, footer, .tabs, .add-form, .pool-empty, .dept-count,
+      nav, .mobil-nav, .burger { display: none !important; }
+      body { background: white; }
+      .page { padding: 0; max-width: 100%; }
+      .main-layout { grid-template-columns: 1fr; }
+      .dept-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+      .dept-card { border: 1.5px solid #ccc; break-inside: avoid; }
+      .person-chip { cursor: default; }
+      .person-chip .chip-del { display: none; }
+      .print-header { display: block !important; margin-bottom: 16px; }
+    }
+    .print-header { display: none; font-family: 'Quicksand', 'Segoe UI', Arial; font-size: 1.1rem; font-weight: 700; color: #3d7272; }
+
+    footer { text-align: center; padding: 32px 24px; font-size: 0.8rem; color: #bbb; border-top: 1px solid #e8e3db; }
+  </style>
+</head>
+<body>
+
+<div class="site-header">
+  <a href="index.html"><img src="logo.png" alt="barnehagekassa.no"></a>
+  <nav>
+    <a href="index.html">Hjem</a>
+    <a href="aktivitetsgenerator.html">Verktøy</a>
+    <a href="periodeplan.html">Maler</a>
+    <a href="barnehageressurser.html">Ressurser</a>
+    <a href="om-meg.html">Om</a>
+  </nav>
+  <button class="burger" id="burgerBtn" aria-label="Meny"><span></span><span></span><span></span></button>
+</div>
+<nav class="mobil-nav" id="mobilNav">
+  <a href="index.html">Hjem</a>
+  <a href="aktivitetsgenerator.html">Verktøy</a>
+  <a href="periodeplan.html">Maler</a>
+  <a href="barnehageressurser.html">Ressurser</a>
+  <a href="om-meg.html">Om</a>
+</nav>
+
+<div class="page-hero">
+  <h1>Opptaksplanlegger</h1>
+  <p>Legg inn alle barn og ansatte, og dra dem over til riktig avdeling. Fargekoder viser alder og stilling.</p>
+</div>
+
+<div class="page">
+
+  <div class="print-header" id="printHeader">Opptaksplan – barnehagekassa.no</div>
+
+  <div class="topbar">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="window.print()">
+        <svg style="width:14px;height:14px;vertical-align:-2px;margin-right:6px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Skriv ut / lagre PDF
+      </button>
+      <button class="btn btn-danger" onclick="resetAll()">Nullstill alt</button>
+    </div>
+  </div>
+
+  <div class="main-layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- LEGG TIL -->
+      <div class="card">
+        <div class="card-head"><h3>Legg til</h3></div>
+        <div class="card-body">
+          <div class="tabs">
+            <button class="tab active" id="tabBarn" onclick="switchTab('barn')">Barn</button>
+            <button class="tab" id="tabAnsatte" onclick="switchTab('ansatte')">Ansatte</button>
+          </div>
+
+          <!-- BARN FORM -->
+          <div id="barnForm">
+            <div class="add-form">
+              <input type="text" id="barnNavn" placeholder="Barnets navn" maxlength="40" autocomplete="off">
+              <select id="barnAar">
+                <option value="">Velg fødselsår</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+                <option value="2019">2019</option>
+                <option value="2018">2018</option>
+              </select>
+              <button onclick="addBarn()">Legg til barn</button>
+            </div>
+          </div>
+
+          <!-- ANSATT FORM -->
+          <div id="ansattForm" style="display:none;">
+            <div class="add-form">
+              <input type="text" id="ansattNavn" placeholder="Ansattes navn" maxlength="40" autocomplete="off">
+              <select id="ansattStilling">
+                <option value="">Velg stilling</option>
+                <option value="Pedagogisk leder">Pedagogisk leder</option>
+                <option value="Barnehagelærer">Barnehagelærer</option>
+                <option value="Fagarbeider">Fagarbeider</option>
+                <option value="Assistent">Assistent</option>
+                <option value="Vikar">Vikar</option>
+                <option value="Spesialpedagog">Spesialpedagog</option>
+                <option value="Styrer">Styrer</option>
+              </select>
+              <button onclick="addAnsatt()">Legg til ansatt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POOL: UFORDELTE -->
+      <div class="card">
+        <div class="card-head">
+          <h3>Ikke tildelt</h3>
+          <span id="poolCount" style="font-size:0.75rem;color:#aaa;font-weight:700;"></span>
+        </div>
+        <div class="card-body" style="padding:10px 14px;">
+          <div class="pool" id="pool"
+            ondragover="onDragOver(event, 'pool')"
+            ondragleave="onDragLeave(event)"
+            ondrop="onDrop(event, 'pool')">
+          </div>
+        </div>
+      </div>
+
+      <!-- FARGEKODELEGEND -->
+      <div class="card">
+        <div class="card-body">
+          <div class="legend-section">
+            <div class="legend-title">Fargekode barn (fødselsår)</div>
+            <div class="legend-items" id="legendBarn"></div>
+          </div>
+          <div class="legend-section" style="margin-bottom:0;">
+            <div class="legend-title">Fargekode ansatte</div>
+            <div class="legend-items" id="legendAnsatte"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- AVDELINGER -->
+    <div>
+      <div class="dept-grid" id="deptGrid"></div>
+      <button class="add-dept-btn" onclick="addDept()" style="margin-top:16px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Legg til avdeling
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <a href="index.html" style="color:#3d7272;text-decoration:none;font-weight:600;">barnehagekassa.no</a>
+  &nbsp;&middot;&nbsp; Gratis verktøy for barnehageansatte
+</footer>
+
+<script>
+  // ---- CONFIG ----
+  const BARN_COLORS = {
+    '2025': { bg: '#fce8ee', dot: '#e87097', label: '2025' },
+    '2024': { bg: '#fef0e0', dot: '#e8943a', label: '2024' },
+    '2023': { bg: '#fefce0', dot: '#c8a800', label: '2023' },
+    '2022': { bg: '#e4f7ef', dot: '#3ab882', label: '2022' },
+    '2021': { bg: '#e0f0fe', dot: '#3a8ee8', label: '2021' },
+    '2020': { bg: '#ede0fe', dot: '#8e3ae8', label: '2020' },
+    '2019': { bg: '#fce0f7', dot: '#c03aaa', label: '2019' },
+    '2018': { bg: '#e0e0e0', dot: '#666',    label: '2018' },
+  };
+
+  const ANSATT_COLORS = {
+    'Pedagogisk leder': { bg: '#e4f2f2', dot: '#3d7272', label: 'Pedagogisk leder' },
+    'Barnehagelærer':   { bg: '#d6ecec', dot: '#2a5252', label: 'Barnehagelærer' },
+    'Fagarbeider':      { bg: '#e4f7ef', dot: '#2a7a55', label: 'Fagarbeider' },
+    'Assistent':        { bg: '#fef0e0', dot: '#d97035', label: 'Assistent' },
+    'Spesialpedagog':   { bg: '#ede0fe', dot: '#7b3ae8', label: 'Spesialpedagog' },
+    'Styrer':           { bg: '#fce8ee', dot: '#c0392b', label: 'Styrer' },
+    'Vikar':            { bg: '#f0f0f0', dot: '#999',    label: 'Vikar' },
+  };
+
+  const DEPT_COLORS = ['#3d7272','#5ba868','#d97035','#7b5ea8','#c03a6a','#3a7ab8','#888','#2a5252'];
+
+  // ---- STATE ----
+  let state = loadState();
+  let dragId = null;
+
+  function loadState() {
+    try {
+      const s = JSON.parse(localStorage.getItem('opptak_state') || 'null');
+      if (s) return s;
+    } catch(e) {}
+    return {
+      people: [],   // { id, name, type:'barn'|'ansatt', year|stilling, dept: null|deptId }
+      depts: [
+        { id: 'd1', name: 'Avdeling 1' },
+        { id: 'd2', name: 'Avdeling 2' },
+      ],
+      nextId: 1
+    };
+  }
+
+  function saveState() {
+    localStorage.setItem('opptak_state', JSON.stringify(state));
+  }
+
+  // ---- RENDERING ----
+  function render() {
+    renderPool();
+    renderDepts();
+    renderLegend();
+    document.getElementById('poolCount').textContent =
+      state.people.filter(p => !p.dept).length + ' stk';
+    saveState();
+  }
+
+  function personColor(p) {
+    if (p.type === 'barn') return BARN_COLORS[p.year] || { bg: '#f0f0f0', dot: '#aaa' };
+    return ANSATT_COLORS[p.stilling] || { bg: '#f0f0f0', dot: '#aaa' };
+  }
+
+  function personChipHTML(p) {
+    const c = personColor(p);
+    const sub = p.type === 'barn' ? p.year : p.stilling;
+    return `<div class="person-chip" id="chip-${p.id}"
+      style="background:${c.bg}; border-color:${c.dot}22;"
+      draggable="true"
+      ondragstart="onDragStart(event, '${p.id}')"
+      ondragend="onDragEnd(event)">
+      <span class="dot" style="background:${c.dot};"></span>
+      <span class="chip-name">${p.name}</span>
+      <span class="chip-sub">${sub || ''}</span>
+      <button class="chip-del" onclick="deletePerson('${p.id}')" title="Fjern">&times;</button>
+    </div>`;
+  }
+
+  function renderPool() {
+    const pool = document.getElementById('pool');
+    const unassigned = state.people.filter(p => !p.dept);
+    if (unassigned.length === 0) {
+      pool.innerHTML = '<div class="pool-empty">Dra hit for å fjerne tildeling</div>';
+    } else {
+      pool.innerHTML = unassigned.map(personChipHTML).join('');
+    }
+  }
+
+  function renderDepts() {
+    const grid = document.getElementById('deptGrid');
+    grid.innerHTML = state.depts.map((d, i) => {
+      const assigned = state.people.filter(p => p.dept === d.id);
+      const barn = assigned.filter(p => p.type === 'barn');
+      const ansatte = assigned.filter(p => p.type === 'ansatt');
+      const dotColor = DEPT_COLORS[i % DEPT_COLORS.length];
+      return `<div class="dept-card" id="dept-${d.id}"
+        ondragover="onDragOver(event, '${d.id}')"
+        ondragleave="onDragLeave(event)"
+        ondrop="onDrop(event, '${d.id}')">
+        <div class="dept-head">
+          <span class="dept-color-dot" style="background:${dotColor};"></span>
+          <input class="dept-name-input" value="${d.name}" placeholder="Avdelingsnavn"
+            onchange="renameDept('${d.id}', this.value)" />
+          <button class="dept-del-btn" onclick="deleteDept('${d.id}')" title="Slett avdeling">&times;</button>
+        </div>
+        <div class="dept-body">
+          <div class="dept-section-label">Barn (${barn.length})</div>
+          <div class="dept-drop-zone" id="zone-barn-${d.id}">
+            ${barn.map(personChipHTML).join('')}
+          </div>
+          <div class="dept-section-label" style="margin-top:10px;">Ansatte (${ansatte.length})</div>
+          <div class="dept-drop-zone" id="zone-ans-${d.id}">
+            ${ansatte.map(personChipHTML).join('')}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderLegend() {
+    document.getElementById('legendBarn').innerHTML =
+      Object.values(BARN_COLORS).map(c =>
+        `<div class="legend-row"><span class="legend-dot" style="background:${c.dot};"></span>${c.label}</div>`
+      ).join('');
+    document.getElementById('legendAnsatte').innerHTML =
+      Object.values(ANSATT_COLORS).map(c =>
+        `<div class="legend-row"><span class="legend-dot" style="background:${c.dot};"></span>${c.label}</div>`
+      ).join('');
+  }
+
+  // ---- ADD ----
+  function addBarn() {
+    const name = document.getElementById('barnNavn').value.trim();
+    const year = document.getElementById('barnAar').value;
+    if (!name) { document.getElementById('barnNavn').focus(); return; }
+    state.people.push({ id: 'p' + state.nextId++, name, type: 'barn', year: year || '?', dept: null });
+    document.getElementById('barnNavn').value = '';
+    render();
+  }
+
+  function addAnsatt() {
+    const name = document.getElementById('ansattNavn').value.trim();
+    const stilling = document.getElementById('ansattStilling').value;
+    if (!name) { document.getElementById('ansattNavn').focus(); return; }
+    state.people.push({ id: 'p' + state.nextId++, name, type: 'ansatt', stilling: stilling || 'Ansatt', dept: null });
+    document.getElementById('ansattNavn').value = '';
+    render();
+  }
+
+  function addDept() {
+    const id = 'd' + Date.now();
+    state.depts.push({ id, name: 'Ny avdeling' });
+    render();
+  }
+
+  function deletePerson(id) {
+    state.people = state.people.filter(p => p.id !== id);
+    render();
+  }
+
+  function deleteDept(id) {
+    // Move people back to pool
+    state.people.forEach(p => { if (p.dept === id) p.dept = null; });
+    state.depts = state.depts.filter(d => d.id !== id);
+    render();
+  }
+
+  function renameDept(id, name) {
+    const d = state.depts.find(d => d.id === id);
+    if (d) { d.name = name; saveState(); }
+  }
+
+  // ---- DRAG & DROP ----
+  function onDragStart(e, personId) {
+    dragId = personId;
+    setTimeout(() => {
+      const chip = document.getElementById('chip-' + personId);
+      if (chip) chip.classList.add('dragging');
+    }, 0);
+    e.dataTransfer.effectAllowed = 'move';
+  }
+
+  function onDragEnd(e) {
+    if (dragId) {
+      const chip = document.getElementById('chip-' + dragId);
+      if (chip) chip.classList.remove('dragging');
+    }
+    // Clean up drag-over highlights
+    document.querySelectorAll('.drag-over, .drag-over-zone').forEach(el => {
+      el.classList.remove('drag-over', 'drag-over-zone');
+    });
+  }
+
+  function onDragOver(e, targetId) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const el = targetId === 'pool'
+      ? document.getElementById('pool')
+      : document.getElementById('dept-' + targetId);
+    if (el) el.classList.add(targetId === 'pool' ? 'drag-over-zone' : 'drag-over');
+  }
+
+  function onDragLeave(e) {
+    if (e.currentTarget) {
+      e.currentTarget.classList.remove('drag-over', 'drag-over-zone');
+    }
+  }
+
+  function onDrop(e, targetId) {
+    e.preventDefault();
+    if (!dragId) return;
+    const person = state.people.find(p => p.id === dragId);
+    if (person) {
+      person.dept = targetId === 'pool' ? null : targetId;
+    }
+    dragId = null;
+    render();
+  }
+
+  // ---- TABS ----
+  function switchTab(tab) {
+    document.getElementById('barnForm').style.display   = tab === 'barn'    ? '' : 'none';
+    document.getElementById('ansattForm').style.display = tab === 'ansatte' ? '' : 'none';
+    document.getElementById('tabBarn').classList.toggle('active',    tab === 'barn');
+    document.getElementById('tabAnsatte').classList.toggle('active', tab === 'ansatte');
+  }
+
+  // ---- RESET ----
+  function resetAll() {
+    if (!confirm('Nullstille alt? Alle barn, ansatte og avdelinger slettes.')) return;
+    state = { people: [], depts: [{ id: 'd1', name: 'Avdeling 1' }, { id: 'd2', name: 'Avdeling 2' }], nextId: 1 };
+    render();
+  }
+
+  // ---- ENTER KEY ----
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('barnNavn').addEventListener('keydown', e => { if (e.key === 'Enter') addBarn(); });
+    document.getElementById('barnAar').addEventListener('keydown', e => { if (e.key === 'Enter') addBarn(); });
+    document.getElementById('ansattNavn').addEventListener('keydown', e => { if (e.key === 'Enter') addAnsatt(); });
+  });
+
+  // ---- BURGER ----
+  document.getElementById('burgerBtn').addEventListener('click', function() {
+    this.classList.toggle('open');
+    document.getElementById('mobilNav').classList.toggle('open');
+  });
+
+  // ---- INIT ----
+  render();
+</script>
+</body>
+</html>
