@@ -95,6 +95,12 @@
     .edit-sel { padding: 4px 6px; border: 1.5px solid #e0dbd3; border-radius: 6px; font-size: 0.8rem; font-family: inherit; outline: none; background: white; flex-shrink: 0; }
     .edit-save { padding: 4px 10px; border-radius: 6px; background: #3d7272; color: white; border: none; font-size: 0.78rem; font-weight: 700; cursor: pointer; flex-shrink: 0; }
     .edit-cancel { padding: 4px 8px; border-radius: 6px; background: #f5f2ed; color: #666; border: 1px solid #e0dbd3; font-size: 0.78rem; cursor: pointer; flex-shrink: 0; }
+
+    .ressurs-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #555; cursor: pointer; padding: 4px 0; user-select: none; }
+    .ressurs-toggle input { cursor: pointer; accent-color: #c8a000; width: 14px; height: 14px; }
+    .chip-star { color: #c8a000; font-size: 0.85rem; flex-shrink: 0; line-height: 1; }
+    .edit-ressurs-row { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #555; flex-shrink: 0; }
+    .edit-ressurs-row input { cursor: pointer; accent-color: #c8a000; }
     .pool-empty { color: #ccc; font-size: 0.82rem; text-align: center; padding: 12px 0; }
 
     /* DEPARTMENTS */
@@ -231,6 +237,10 @@
                 <option value="2019">2019</option>
                 <option value="2018">2018</option>
               </select>
+              <label class="ressurs-toggle">
+                <input type="checkbox" id="barnRessurs">
+                <span>Ressursbarn</span>
+              </label>
               <button onclick="addBarn()">Legg til barn</button>
             </div>
           </div>
@@ -481,6 +491,8 @@
     } else {
       sub = (p.stilling || '') + (p.prosent && p.prosent !== 100 ? ' ' + p.prosent + '%' : '');
     }
+    const star = (p.type === 'barn' && p.ressurs)
+      ? `<span class="chip-star" title="Ressursbarn">&#9733;</span>` : '';
     return `<div class="person-chip" id="chip-${p.id}"
       style="background:${c.bg}; border-color:${c.dot}22;"
       draggable="true"
@@ -489,6 +501,7 @@
       <span class="dot" style="background:${c.dot};"></span>
       <span class="chip-name">${p.name}</span>
       <span class="chip-sub">${sub}</span>
+      ${star}
       <button class="chip-edit" onclick="startEdit(event,'${p.id}')" title="Rediger">
         <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
       </button>
@@ -517,7 +530,8 @@
       .map(v => `<option value="${v}"${(p.prosent||100)==v?' selected':''}>${v}%</option>`).join('');
 
     const extraFields = p.type === 'barn'
-      ? `<select class="edit-sel" id="edit-year-${id}">${yearOptions}</select>`
+      ? `<select class="edit-sel" id="edit-year-${id}">${yearOptions}</select>
+         <label class="edit-ressurs-row"><input type="checkbox" id="edit-ressurs-${id}" ${p.ressurs?'checked':''}> Ressurs</label>`
       : `<select class="edit-sel" id="edit-stilling-${id}">${stillingOptions}</select>
          <select class="edit-sel" id="edit-prosent-${id}" style="width:70px;">${prosentOptions}</select>`;
 
@@ -538,6 +552,8 @@
     if (p.type === 'barn') {
       const yearEl = document.getElementById('edit-year-' + id);
       if (yearEl) p.year = yearEl.value;
+      const ressursEl = document.getElementById('edit-ressurs-' + id);
+      if (ressursEl) p.ressurs = ressursEl.checked;
     } else {
       const stilEl = document.getElementById('edit-stilling-' + id);
       if (stilEl) p.stilling = stilEl.value;
@@ -616,9 +632,11 @@
   function addBarn() {
     const name = document.getElementById('barnNavn').value.trim();
     const year = document.getElementById('barnAar').value;
+    const ressurs = document.getElementById('barnRessurs').checked;
     if (!name) { document.getElementById('barnNavn').focus(); return; }
-    state.people.push({ id: 'p' + state.nextId++, name, type: 'barn', year: year || '?', dept: null });
+    state.people.push({ id: 'p' + state.nextId++, name, type: 'barn', year: year || '?', ressurs, dept: null });
     document.getElementById('barnNavn').value = '';
+    document.getElementById('barnRessurs').checked = false;
     render();
   }
 
