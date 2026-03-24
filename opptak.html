@@ -84,7 +84,8 @@
     .person-chip.dragging { opacity: 0.45; }
     .person-chip .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .person-chip .chip-name { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .person-chip .chip-sub { font-size: 0.73rem; font-weight: 400; opacity: 0.7; white-space: nowrap; flex: 1; }
+    .person-chip .chip-spacer { flex: 1; }
+    .person-chip .chip-sub { font-size: 0.73rem; font-weight: 400; opacity: 0.7; white-space: nowrap; }
     .person-chip .chip-del { background: none; border: none; color: rgba(0,0,0,0.25); cursor: pointer; font-size: 1rem; padding: 0 2px; line-height: 1; transition: color 0.15s; flex-shrink: 0; }
     .person-chip .chip-del:hover { color: #e05555; }
     .person-chip .chip-edit { background: none; border: none; color: rgba(0,0,0,0.22); cursor: pointer; padding: 0 2px; line-height: 1; transition: color 0.15s; flex-shrink: 0; display: flex; align-items: center; }
@@ -501,6 +502,7 @@
       <span class="dot" style="background:${c.dot};"></span>
       <span class="chip-name">${p.name}</span>
       ${star}
+      <span class="chip-spacer"></span>
       <span class="chip-sub">${sub}</span>
       <button class="chip-edit" onclick="startEdit(event,'${p.id}')" title="Rediger">
         <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
