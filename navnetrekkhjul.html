@@ -78,7 +78,7 @@
 <body>
 
 <div class="site-header">
-  <a href="index.html"><img src="logo.png" alt="barnehagekassa.no"></a>
+  <a href="index.html"><img src="logo_cropped.png" alt="barnehagekassa.no"></a>
   <nav>
     <a href="index.html">Hjem</a>
     <a href="aktivitetsgenerator.html">Verktøy</a>
@@ -168,13 +168,9 @@
 
   function renderList() {
     const list = document.getElementById('nameList');
-    const hint = document.getElementById('emptyHint');
     if (names.length === 0) {
-      list.innerHTML = '';
-      list.appendChild(hint);
-      hint.style.display = 'block';
+      list.innerHTML = '<div class="empty-hint">Ingen navn lagt til ennå.</div>';
     } else {
-      hint.style.display = 'none';
       list.innerHTML = names.map((n, i) => `
         <div class="name-item">
           <span>${n}</span>
