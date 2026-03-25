@@ -1,5 +1,5 @@
 # Ideer for barnehagekassa.no
-_Notat laget 21. mars 2026 — sist oppdatert 23. mars 2026_
+_Notat laget 21. mars 2026 — sist oppdatert 25. mars 2026_
 
 ---
 
@@ -22,7 +22,7 @@ _Notat laget 21. mars 2026 — sist oppdatert 23. mars 2026_
 - **Sesongkalender** — se over (høy prioritet, mye etterspurt)
 
 **Praktiske hverdagsverktøy**
-- **Navnetrekkhjul** — legg inn barna på avdelingen, trekk tilfeldig hvem som er hjelpebarn, starter med sang osv. Enkelt og delbart i sosiale medier
+- ✅ **Navnetrekkhjul** — legg inn barna på avdelingen, trekk tilfeldig hvem som er hjelpebarn, starter med sang osv. _(24. mars)_
 - **Aktivitetstimer** — forhåndsinnstilte tider (3 min ryddetid, 5 min pause, 20 min frilek) med lydsignal
 - **Turplanlegger og risikovurderingsskjema** — sjekkliste for utstyr, medisinbehov, sikkerhetsrutiner og ansvarsfordeling ved utflukter (pålagt, men ingen enkel digital løsning finnes)
 
@@ -74,3 +74,4 @@ _Notat laget 21. mars 2026 — sist oppdatert 23. mars 2026_
 - ✅ Alfabetisk sortering av kort innen alle kategorier på forsiden _(23. mars)_
 - ✅ **Font på overskrifter byttet til Quicksand** — alle 27 HTML-filer oppdatert fra Plus Jakarta Sans til Quicksand 500 (medium) for å matche logoens vekt og stil _(23. mars)_
 - ✅ **Logo konsistent på alle sider** — observasjon.html brukte gammelt logo-illustrasjon.png (laptop-logo); nå er alle sider samkjørt med barnehagekassa-logoen _(23. mars)_
+- ✅ **Opptaksplanlegger: stor oppdatering** — lagt til stillingsprosent, avdelingstype og bemanningsnorm-kalkulator; ressursbarn-flagg med stjernemarkering; redigering av barn og ansatte; justerbar layout på barnekort; redigerbare fargekoder per årstall; korrektur (Småbarn, snurr); fikset bugs i logo og navnetrekkhjul _(24. mars)_
