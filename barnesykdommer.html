@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barnesykdommer – barnehagekassa.no</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", Arial, sans-serif; background: #f5f2ed; color: #1a1a1a; min-height: 100vh; }
+
+    /* ═══ HEADER ═══ */
+    .site-header { background: white; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e8e3db; position: relative; }
+    .site-header img { height: 44px; width: auto; display: block; }
+    nav { display: flex; gap: 24px; align-items: center; }
+    nav a { color: #444; text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: color 0.15s; }
+    nav a:hover { color: #3d7272; }
+
+    /* ═══ HAMBURGER ═══ */
+    .burger { display: none; flex-direction: column; justify-content: center; gap: 5px; width: 38px; height: 38px; background: none; border: none; cursor: pointer; padding: 4px; border-radius: 8px; transition: background 0.15s; }
+    .burger:hover { background: #f5f2ed; }
+    .burger span { display: block; width: 22px; height: 2px; background: #444; border-radius: 2px; transition: transform 0.25s ease, opacity 0.2s; }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobil-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border-bottom: 2px solid #e8e3db; box-shadow: 0 8px 24px rgba(0,0,0,0.10); flex-direction: column; padding: 8px 0 12px; z-index: 1000; }
+    .mobil-nav.open { display: flex; }
+    .mobil-nav a { padding: 12px 24px; color: #333; text-decoration: none; font-size: 1rem; font-weight: 500; border-bottom: 1px solid #f5f2ed; transition: background 0.12s, color 0.12s; }
+    .mobil-nav a:last-child { border-bottom: none; }
+    .mobil-nav a:hover { background: #f5f9f9; color: #3d7272; }
+    @media (max-width: 700px) { nav { display: none; } .burger { display: flex; } .site-header { padding: 12px 20px; } }
+    @media (min-width: 701px) { .mobil-nav { display: none !important; } }
+
+    /* ═══ PAGE HERO ═══ */
+    .page-hero { background: #3d7272; color: white; padding: 52px 32px 44px; text-align: center; }
+    .page-hero h1 { font-size: 2rem; font-weight: 900; font-family: "Quicksand", "Segoe UI", Arial, sans-serif; margin-bottom: 10px; }
+    .page-hero p { color: rgba(255,255,255,0.90); font-size: 1rem; max-width: 580px; margin: 0 auto; line-height: 1.65; }
+
+    /* ═══ LAYOUT ═══ */
+    .page { max-width: 960px; margin: 0 auto; padding: 36px 24px 80px; }
+
+    /* ═══ FILTER / SØK ═══ */
+    .filter-bar {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; align-items: center;
+    }
+    .sok-felt {
+      flex: 1; min-width: 200px;
+      padding: 10px 16px 10px 40px;
+      border: 1.5px solid #e8e3db; border-radius: 50px;
+      font-size: 0.95rem; font-family: inherit;
+      background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none' stroke='%23aaa' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='9' cy='9' r='6'/%3E%3Cline x1='14.5' y1='14.5' x2='18' y2='18'/%3E%3C/svg%3E") 14px center / 16px no-repeat;
+      outline: none; transition: border-color 0.15s;
+    }
+    .sok-felt:focus { border-color: #3d7272; }
+    .filter-knapper { display: flex; gap: 7px; flex-wrap: wrap; }
+    .filter-btn {
+      padding: 8px 16px; border-radius: 50px; border: 1.5px solid #e8e3db;
+      background: white; font-size: 0.83rem; font-weight: 700; cursor: pointer;
+      transition: all 0.15s; color: #555;
+    }
+    .filter-btn:hover { border-color: #3d7272; color: #3d7272; }
+    .filter-btn.aktiv { background: #3d7272; color: white; border-color: #3d7272; }
+    .filter-btn.mild { border-color: #4caf7d; }
+    .filter-btn.mild.aktiv { background: #4caf7d; border-color: #4caf7d; }
+    .filter-btn.moderat { border-color: #e6a020; }
+    .filter-btn.moderat.aktiv { background: #e6a020; border-color: #e6a020; }
+    .filter-btn.alvorlig { border-color: #d95757; }
+    .filter-btn.alvorlig.aktiv { background: #d95757; border-color: #d95757; }
+
+    /* ═══ SYKDOMSKORT ═══ */
+    .sykdom-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .sykdom-kort {
+      background: white; border-radius: 16px;
+      border: 1.5px solid #e8e3db;
+      padding: 0; overflow: hidden;
+      transition: box-shadow 0.18s, transform 0.18s, border-color 0.18s;
+      display: flex; flex-direction: column;
+    }
+    .sykdom-kort:hover { box-shadow: 0 6px 28px rgba(61,114,114,0.12); transform: translateY(-2px); border-color: #c8dada; }
+    .sykdom-kort.skjult { display: none; }
+
+    .kort-topp {
+      padding: 18px 20px 14px;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    }
+    .sykdom-navn {
+      font-size: 1.05rem; font-weight: 800;
+      font-family: "Quicksand", "Segoe UI", Arial, sans-serif;
+      color: #1a1a1a; line-height: 1.3;
+    }
+    .sykdom-latinsk {
+      font-size: 0.78rem; color: #999; font-weight: 400;
+      font-style: italic; margin-top: 2px;
+    }
+    .alvor-badge {
+      flex-shrink: 0; padding: 4px 10px; border-radius: 50px;
+      font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .badge-mild { background: #e8f8ee; color: #2e7d52; }
+    .badge-moderat { background: #fff3d4; color: #9a6400; }
+    .badge-alvorlig { background: #fde8e8; color: #b83030; }
+
+    .kort-innhold { padding: 0 20px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+    .kort-rad {
+      display: flex; gap: 8px; font-size: 0.87rem; line-height: 1.5;
+    }
+    .kort-ikon { flex-shrink: 0; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+    .kort-ikon svg { width: 16px; height: 16px; }
+    .kort-label { font-size: 0.72rem; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.4px; display: block; margin-bottom: 2px; }
+    .kort-tekst { color: #444; }
+
+    .hjemme-rad { background: #f5f2ed; border-radius: 8px; padding: 9px 12px; }
+    .hjemme-ja { background: #fde8e8; }
+    .hjemme-nei { background: #e8f8ee; }
+    .hjemme-rad .kort-label { color: #888; }
+    .hjemme-ja .kort-tekst { color: #b83030; font-weight: 600; }
+    .hjemme-nei .kort-tekst { color: #2e7d52; font-weight: 600; }
+
+    .fhi-lenke {
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 14px; margin: 2px 20px 18px;
+      background: #f0f4f4; border-radius: 8px;
+      text-decoration: none; color: #3d7272;
+      font-size: 0.83rem; font-weight: 700;
+      transition: background 0.15s;
+    }
+    .fhi-lenke:hover { background: #e0eded; }
+    .fhi-lenke svg { flex-shrink: 0; width: 14px; height: 14px; }
+
+    /* ═══ INGEN TREFF ═══ */
+    .ingen-treff { display: none; text-align: center; padding: 48px 24px; color: #aaa; font-size: 0.95rem; }
+    .ingen-treff.vis { display: block; }
+
+    /* ═══ RESSURSLENKE ═══ */
+    .ressurs-boks {
+      background: white; border-radius: 14px; border: 1.5px solid #e8e3db;
+      padding: 18px 22px; margin-bottom: 28px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .ressurs-boks svg { flex-shrink: 0; color: #3d7272; }
+    .ressurs-tekst { flex: 1; }
+    .ressurs-tekst strong { display: block; font-size: 0.95rem; color: #1a1a1a; margin-bottom: 3px; }
+    .ressurs-tekst span { font-size: 0.85rem; color: #666; }
+    .ressurs-boks a { color: #3d7272; text-decoration: none; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+    .ressurs-boks a:hover { text-decoration: underline; }
+
+    /* ═══ FOOTER ═══ */
+    footer { text-align: center; padding: 28px; font-size: 0.8rem; color: #bbb; border-top: 1px solid #e8e3db; }
+  </style>
+</head>
+<body>
+
+<div class="site-header">
+  <a href="index.html"><img src="logo_cropped.png" alt="barnehagekassa logo"></a>
+  <nav>
+    <a href="index.html#kalkulatorer">Kalkulatorer</a>
+    <a href="index.html#interaktivt">Verktøy</a>
+    <a href="index.html#maler">Maler</a>
+    <a href="index.html#kreativt">Kreativt</a>
+    <a href="index.html#ressurser">Ressurser</a>
+    <a href="spesialpedagogikk.html">Spesialpedagogikk</a>
+    <a href="om-meg.html">Om siden</a>
+  </nav>
+  <button class="burger" id="burgerBtn" aria-label="Meny">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="mobil-nav" id="mobilNav">
+    <a href="index.html#kalkulatorer">Kalkulatorer</a>
+    <a href="index.html#interaktivt">Verktøy</a>
+    <a href="index.html#maler">Maler</a>
+    <a href="index.html#kreativt">Kreativt</a>
+    <a href="index.html#ressurser">Ressurser</a>
+    <a href="spesialpedagogikk.html">Spesialpedagogikk</a>
+    <a href="om-meg.html">Om siden</a>
+  </div>
+</div>
+
+<div class="page-hero">
+  <h1>🤧 Barnesykdommer i barnehagen</h1>
+  <p>Rask oversikt over vanlige sykdommer – kjennetegn, alvorlighetsgrad og om barnet skal være hjemme. Klikk FHI-lenken for fullstendig faglig informasjon.</p>
+</div>
+
+<div class="page">
+
+  <div class="ressurs-boks">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+    </svg>
+    <div class="ressurs-tekst">
+      <strong>FHI: Når bør barnet være hjemme fra barnehagen?</strong>
+      <span>Fullstendig oversikt fra Folkehelseinstituttet med anbefalinger for alle sykdommer.</span>
+    </div>
+    <a href="https://www.fhi.no/sm/barnehage/nar-bor-barnet-vare-hjemme-fra-barne/" target="_blank" rel="noopener">Åpne hos FHI →</a>
+  </div>
+
+  <div class="filter-bar">
+    <input type="search" class="sok-felt" id="sokFelt" placeholder="Søk etter sykdom…" autocomplete="off">
+    <div class="filter-knapper">
+      <button class="filter-btn aktiv" data-filter="alle">Alle</button>
+      <button class="filter-btn mild" data-filter="mild">Mild</button>
+      <button class="filter-btn moderat" data-filter="moderat">Moderat</button>
+      <button class="filter-btn alvorlig" data-filter="alvorlig">Alvorlig</button>
+    </div>
+  </div>
+
+  <div class="sykdom-grid" id="sykdomGrid">
+
+    <!-- VANNKOPPER -->
+    <div class="sykdom-kort" data-alvor="moderat" data-navn="vannkopper varicella">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Vannkopper</div>
+          <div class="sykdom-latinsk">Varicella</div>
+        </div>
+        <span class="alvor-badge badge-moderat">Moderat</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Feber, etterfulgt av kløende utslett som starter på kroppen og sprer seg. Blemmer som tørker inn til skorper over 5–7 dager.</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Dråpesmitte og direkte kontakt med blæreinnhold. Svært smittsomt.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-ja">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b83030" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Ja – til alle blemmer har tørket inn til skorper (ca. 5–7 dager).</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/sm/smittevernhandboka/sykdommer-a-a/varicella-vannkopper/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- HÅND-FOT-MUNN -->
+    <div class="sykdom-kort" data-alvor="mild" data-navn="hånd fot munn sykdom coxsackievirus hfm">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Hånd-, fot- og munnsyke</div>
+          <div class="sykdom-latinsk">Coxsackievirus</div>
+        </div>
+        <span class="alvor-badge badge-mild">Mild</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Feber, sår i munnen og utslett med småblemmer på hender, føtter og rumpe. Vanligst sommer og høst.</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Kontaktsmitte (avføring, sekret fra sår og munn). Kan smitte i opptil 4 uker.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-nei">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#2e7d52" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Nei – kan gå når barnet er i god allmenntilstand og feberfritt.</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/sm/smittevernhandboka/sykdommer-a-a/coxsackievirusinfeksjon/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- TREDAGERSYKE -->
+    <div class="sykdom-kort" data-alvor="mild" data-navn="tredagersyke roseola exanthema subitum roseolainfantum">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Tredagersyke</div>
+          <div class="sykdom-latinsk">Exanthema subitum / Roseola infantum</div>
+        </div>
+        <span class="alvor-badge badge-mild">Mild</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Høy feber i 3–4 dager, som så forsvinner. Etter feberfall dukker det opp et flatt rosa utslett på kroppen. Oftest hos barn under 2 år.</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Trolig dråpesmitte. HHV-6 virus.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-nei">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#2e7d52" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Nei – kan gå etter at feberen er borte og barnet er i god form.</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/sm/smittevernhandboka/sykdommer-a-a/exanthema-subitum/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- IMPETIGO / BRENNKOPPER -->
+    <div class="sykdom-kort" data-alvor="mild" data-navn="impetigo brennkopper skollesår stafylokokk streptokokk hud">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Impetigo (brennkopper)</div>
+          <div class="sykdom-latinsk">Impetigo contagiosa</div>
+        </div>
+        <span class="alvor-badge badge-mild">Mild</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Gule, honningfargede skorper – typisk rundt munn og nese. Kan også opptre som blærer. Vanligst hos barn under 12 år.</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Direkte kontakt med sår eller skorper. Smitter lett mellom barn.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-ja">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b83030" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Ja – til behandling (krem eller antibiotika) er startet og sårene er tildekket.</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/sm/smittevernhandboka/sykdommer-a-a/brennkopper/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- STREPTOKOKK A / SKARLAGENSFEBER -->
+    <div class="sykdom-kort" data-alvor="moderat" data-navn="streptokokk skarlagensfeber halsbetennelse gruppe a gass">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Streptokokk A / skarlagensfeber</div>
+          <div class="sykdom-latinsk">Gruppe A streptokokk (GAS)</div>
+        </div>
+        <span class="alvor-badge badge-moderat">Moderat</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Halssmerter, feber, røde mandler. Skarlagensfeber gir i tillegg fint rødt utslett på kroppen og jordbærtunge.</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Dråpesmitte fra hals og nese. Uten behandling smittsomt i ca. 1 uke.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-ja">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b83030" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Ja – til minst 24 timer etter oppstart av antibiotikabehandling og feberfritt.</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/sm/smittevernhandboka/sykdommer-a-a/streptokokk-gruppe-a-infeksjon/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1-2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- HODELUS -->
+    <div class="sykdom-kort" data-alvor="mild" data-navn="hodelus lus hode hårkløe parasitt">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Hodelus</div>
+          <div class="sykdom-latinsk">Pediculus humanus capitis</div>
+        </div>
+        <span class="alvor-badge badge-mild">Mild</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Kløe i hodebunnen, særlig i nakke og bak ørene. Lus og gnatter (egg) kan ses i håret. Ikke tegn på dårlig hygiene.</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Direkte hode-til-hode-kontakt. Smitter ikke via hatter og leker.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-nei">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#2e7d52" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Nei – kan gå etter at behandling er startet. Gi beskjed til barnehagen.</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/nettpub/skadedyrveilederen/lus/hodelus/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- SKABB -->
+    <div class="sykdom-kort" data-alvor="mild" data-navn="skabb skabbmidd kløe parasitt hud">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Skabb</div>
+          <div class="sykdom-latinsk">Sarcoptes scabiei</div>
+        </div>
+        <span class="alvor-badge badge-mild">Mild</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Intens kløe, særlig om natten. Små ganger og røde prikker mellom fingre, på håndledd og korsrygg. Kløen skyldes allergisk reaksjon.</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Langvarig, nær hud-til-hud-kontakt. Smitter i barnefamilier og mellom barn og ansatte i barnehager.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-ja">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b83030" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Ja – til behandling er gjennomført (hele familien behandles samtidig).</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/nettpub/smittevernveilederen/sykdommer-a-a/skabb/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- KIKHOSTE -->
+    <div class="sykdom-kort" data-alvor="alvorlig" data-navn="kikhoste pertussis hoste spebarn vaksinasjon">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Kikhoste</div>
+          <div class="sykdom-latinsk">Pertussis / Bordetella pertussis</div>
+        </div>
+        <span class="alvor-badge badge-alvorlig">Alvorlig</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Langvarig, anfallsvis hoste med karakteristisk «kik»-lyd ved innpust. Kan vare 3 måneder. Alvorligst for spedbarn.</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Dråpesmitte. En av de mest smittsomme sykdommene vi kjenner.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-ja">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b83030" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Ja – 5 dager etter oppstart antibiotika, eller 3 uker uten antibiotika.</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/sm/smittevernveilederen/sykdommer-a-a/kikhoste-pertussis---veileder-for-h/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- MESLINGER -->
+    <div class="sykdom-kort" data-alvor="alvorlig" data-navn="meslinger morbilli mmr vaksine utslett feber">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Meslinger</div>
+          <div class="sykdom-latinsk">Morbilli / Morbillivirus</div>
+        </div>
+        <span class="alvor-badge badge-alvorlig">Alvorlig</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Høy feber, rennende nese, øyekatarr og hoste. Etter 3–4 dager sprer et typisk rødt utslett seg fra ansiktet nedover kroppen.</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Dråpe- og luftsmitte. En av de mest smittsomme sykdommene som finnes. MMR-vaksinen beskytter.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-ja">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b83030" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Ja – til minst 4 dager etter at utslettet dukket opp. Varslingspliktig sykdom.</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/sm/smittevernhandboka/sykdommer-a-a/meslinger-morbilli/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- KONJUNKTIVITT -->
+    <div class="sykdom-kort" data-alvor="mild" data-navn="konjunktivitt øyekatarr øyebetennelse øye">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Konjunktivitt (øyekatarr)</div>
+          <div class="sykdom-latinsk">Conjunctivitis infectiosa</div>
+        </div>
+        <span class="alvor-badge badge-mild">Mild</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Røde, irriterte øyne med sekret. Morgenstivet øyelokk. Kan være bakteriell (gult puss) eller viral (mer vannaktig).</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Kontaktsmitte via hender og sekret. God håndhygiene er viktigste tiltak.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-nei">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#2e7d52" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Nei ved mild øyekatarr. Kun ved kraftig pussdannelse fra begge øyne bør barnet holdes hjemme.</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/nettpub/smittevernveilederen/sykdommer-a-a/konjunktivitt-infeksios---veileder-/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- OMGANGSSYKE / NOROVIRUS -->
+    <div class="sykdom-kort" data-alvor="moderat" data-navn="omgangssyke norovirus rotavirus oppkast diaré mage">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Omgangssyke</div>
+          <div class="sykdom-latinsk">Norovirus / Rotavirus</div>
+        </div>
+        <span class="alvor-badge badge-moderat">Moderat</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Plutselig oppkast og/eller diaré, kvalme, magesmerter. Av og til lett feber. Varer som regel 1–3 dager.</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Kontaktsmitte via avføring/oppkast. Meget smittsomt – god håndhygiene og renhold er avgjørende.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-ja">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b83030" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Ja – til 48 timer etter siste oppkast eller diarésymptom.</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/sm/smitte-fra-mat-vann-dyr/infeksjoner-som-smitter-fra-mat-vann-og-dyr/omgangssjuke-forarsaka-av-norovirus/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- RØDE HUNDER -->
+    <div class="sykdom-kort" data-alvor="mild" data-navn="røde hunder rubella mmr utslett feber gravide">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Røde hunder</div>
+          <div class="sykdom-latinsk">Rubella</div>
+        </div>
+        <span class="alvor-badge badge-mild">Mild</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Lett feber, hovne lymfekjertler i nakken og fint rødt utslett som starter i ansiktet. Mild hos barn – svært farlig for gravide (fosterskade).</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Dråpesmitte. MMR-vaksinen gir god beskyttelse.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-ja">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b83030" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Ja – til utslettet er borte. Varsle gravide ansatte/foreldre.</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/nettpub/smittevernveilederen/sykdommer-a-a/rubella-rode-hunder---veileder-for-/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+    <!-- KUSMA -->
+    <div class="sykdom-kort" data-alvor="mild" data-navn="kusma parotitt mmr kjeveoppsvulming spyttkjertel">
+      <div class="kort-topp">
+        <div>
+          <div class="sykdom-navn">Kusma</div>
+          <div class="sykdom-latinsk">Parotitt / Parotitis epidemica</div>
+        </div>
+        <span class="alvor-badge badge-mild">Mild</span>
+      </div>
+      <div class="kort-innhold">
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Kjennetegn</span>
+            <span class="kort-tekst">Hevelse og ømhet over kinnbenet der spyttkjertlene sitter (fremst ved ørene). Feber og hodepine. Vanligvis mild sykdom.</span>
+          </div>
+        </div>
+        <div class="kort-rad">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Smittevei</span>
+            <span class="kort-tekst">Dråpesmitte. Sjelden i Norge pga. MMR-vaksinasjonen.</span>
+          </div>
+        </div>
+        <div class="kort-rad hjemme-ja">
+          <div class="kort-ikon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#b83030" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="kort-label">Hjemme fra barnehagen?</span>
+            <span class="kort-tekst">Ja – til minst 5 dager etter at svulsten oppsto.</span>
+          </div>
+        </div>
+      </div>
+      <a class="fhi-lenke" href="https://www.fhi.no/sm/smittevernveilederen/sykdommer-a-a/kusma---veileder-for-helsepersonell/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Les mer hos FHI
+      </a>
+    </div>
+
+  </div><!-- /sykdom-grid -->
+
+  <div class="ingen-treff" id="ingenTreff">Ingen sykdommer matchet søket ditt.</div>
+
+</div><!-- /page -->
+
+<footer>barnehagekassa.no – laget av en pedagogisk leder, for barnehageansatte · <a href="om-meg.html" style="color:#bbb;">Om siden</a></footer>
+
+<script>
+  // Hamburger
+  const burgerBtn = document.getElementById('burgerBtn');
+  const mobilNav = document.getElementById('mobilNav');
+  burgerBtn.addEventListener('click', () => {
+    burgerBtn.classList.toggle('open');
+    mobilNav.classList.toggle('open');
+  });
+
+  // Filter og søk
+  const kort = Array.from(document.querySelectorAll('.sykdom-kort'));
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const sokFelt = document.getElementById('sokFelt');
+  const ingenTreff = document.getElementById('ingenTreff');
+  let aktivFilter = 'alle';
+
+  function oppdaterVisning() {
+    const sokTekst = sokFelt.value.toLowerCase().trim();
+    let synlige = 0;
+    kort.forEach(k => {
+      const alvor = k.dataset.alvor;
+      const navn = k.dataset.navn;
+      const tekstMatch = navn.includes(sokTekst) || sokTekst === '';
+      const filterMatch = aktivFilter === 'alle' || alvor === aktivFilter;
+      if (tekstMatch && filterMatch) {
+        k.classList.remove('skjult');
+        synlige++;
+      } else {
+        k.classList.add('skjult');
+      }
+    });
+    ingenTreff.classList.toggle('vis', synlige === 0);
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('aktiv'));
+      btn.classList.add('aktiv');
+      aktivFilter = btn.dataset.filter;
+      oppdaterVisning();
+    });
+  });
+
+  sokFelt.addEventListener('input', oppdaterVisning);
+</script>
+</body>
+</html>
