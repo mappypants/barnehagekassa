@@ -190,11 +190,21 @@
       .stat-label { font-size: 0.65rem; }
     }
 
-    /* ═══ SØKEBOKS ═══ */
-    .search-wrap {
+    /* ═══ STICKY BAR (søk + filter) ═══ */
+    .sticky-bar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
       background: white;
       border-bottom: 1px solid #e8e3db;
-      padding: 18px 32px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+    }
+
+    /* ═══ SØKEBOKS ═══ */
+    .search-wrap {
+      background: transparent;
+      border-bottom: 1px solid #f0ece6;
+      padding: 14px 32px;
     }
     .search-inner {
       max-width: 900px;
@@ -278,7 +288,50 @@
     }
     @media (max-width: 600px) {
       .footer-inner { gap: 28px; }
-      .search-wrap { padding: 14px 20px; }
+      .search-wrap { padding: 12px 16px; }
+    }
+
+    /* ═══ FILTER-TABS ═══ */
+    .filter-bar {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      border: none;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 10px 32px;
+      display: flex;
+      gap: 6px;
+    }
+    .filter-btn {
+      flex-shrink: 0;
+      padding: 5px 16px;
+      border-radius: 100px;
+      border: 1.5px solid #e0dbd3;
+      background: transparent;
+      color: #666;
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      font-family: inherit;
+      white-space: nowrap;
+      line-height: 1.8;
+    }
+    .filter-btn:hover {
+      border-color: #3d7272;
+      color: #3d7272;
+    }
+    .filter-btn.aktiv {
+      background: #3d7272;
+      border-color: #3d7272;
+      color: white;
+    }
+    @media (max-width: 600px) {
+      .filter-inner { padding: 8px 16px; }
     }
 </style>
 </head>
@@ -336,18 +389,30 @@
   </div>
 </div>
 
-<div class="search-wrap">
-  <div class="search-inner">
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="9" cy="9" r="6"/><line x1="14.5" y1="14.5" x2="18" y2="18"/>
-    </svg>
-    <input type="search" id="sokInput" placeholder="Søk etter verktøy, maler og ressurser..." autocomplete="off">
+<div class="sticky-bar">
+  <div class="search-wrap">
+    <div class="search-inner">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="9" cy="9" r="6"/><line x1="14.5" y1="14.5" x2="18" y2="18"/>
+      </svg>
+      <input type="search" id="sokInput" placeholder="Søk etter verktøy, maler og ressurser..." autocomplete="off">
+    </div>
+  </div>
+  <div class="filter-bar" id="filterBar">
+    <div class="filter-inner">
+      <button class="filter-btn aktiv" data-filter="alle">Alle</button>
+      <button class="filter-btn" data-filter="kalkulatorer">Kalkulatorer</button>
+      <button class="filter-btn" data-filter="maler">Maler</button>
+      <button class="filter-btn" data-filter="verktoy">Verktøy</button>
+      <button class="filter-btn" data-filter="kreativt">Kreativt</button>
+      <button class="filter-btn" data-filter="ressurser">Ressurser</button>
+    </div>
   </div>
 </div>
 
 <div class="page">
 
-  <div class="section" id="kalkulatorer">
+  <div class="section" id="kalkulatorer" data-kategori="kalkulatorer">
     <div class="section-title">Kalkulatorer</div>
     <div class="tool-grid">
       <a class="tool-card" data-sok="bemanningsnorm-kalkulator sjekk om avdelingen er innenfor normen i dag. tar hensyn til pauser og plantid." href="bemanningsnorm-kalkulator.html">
@@ -373,7 +438,7 @@
     </div>
   </div>
 
-  <div class="section" id="maler">
+  <div class="section" id="maler" data-kategori="maler">
     <div class="section-title">Maler og skjemaer</div>
     <div class="maler-list">
       <a class="maler-item" data-sok="avdelingsmøtereferat strukturert mal for møtereferat" href="avdelingsmote-referat-mal.docx" download>
@@ -410,7 +475,7 @@
   </div>
 
 
-  <div class="section" id="interaktivt">
+  <div class="section" id="interaktivt" data-kategori="verktoy">
     <div class="section-title">Interaktive verktøy</div>
     <div class="tool-grid">
       <a class="tool-card" data-sok="aktivitetshjulet snurr hjulet og la tilfeldighetene bestemme hva avdelingen fokuserer på. perfekt til avdelingsmøter." href="aktivitetshjulet.html">
@@ -471,7 +536,7 @@
     </div>
   </div>
 
-  <div class="section" id="kreativt">
+  <div class="section" id="kreativt" data-kategori="kreativt">
     <div class="section-title">Kreativt arbeid</div>
     <div class="tool-grid">
       <a class="tool-card" data-sok="fargeleggingsmaler gratis utskrivbare fargeleggingsark fra flere nettsider, tilpasset barnehagealder." href="fargeleggingsmaler.html">
@@ -497,7 +562,7 @@
     </div>
   </div>
 
-  <div class="section" id="ressurser">
+  <div class="section" id="ressurser" data-kategori="ressurser">
     <div class="section-title">Ressurser</div>
     <div class="tool-grid">
       <a class="tool-card" data-sok="barnehageressurser på nett samling av de beste nettstedene for fagstoff, aktiviteter, trygghet og spesialpedagogikk." href="barnehageressurser.html">
@@ -692,27 +757,56 @@ function apneTilbakemelding() {
   <script>
   (function() {
     var input = document.getElementById('sokInput');
-    if (!input) return;
-    input.addEventListener('input', function() {
-      var q = this.value.trim().toLowerCase();
-      var sections = document.querySelectorAll('.section');
+    var filterBar = document.getElementById('filterBar');
+    if (!input || !filterBar) return;
+
+    var aktivFilter = 'alle';
+
+    function applyState() {
+      var q = input.value.trim().toLowerCase();
+      var sokAktiv = q.length > 0;
+      var sections = document.querySelectorAll('.section[data-kategori]');
       var totaltSynlige = 0;
 
       sections.forEach(function(section) {
+        var kat = section.getAttribute('data-kategori');
+        var filterMatch = sokAktiv || aktivFilter === 'alle' || kat === aktivFilter;
+
+        if (!filterMatch) {
+          section.classList.add('skjult');
+          return;
+        }
+
         var items = section.querySelectorAll('[data-sok]');
         var synlige = 0;
         items.forEach(function(item) {
-          var match = !q || item.getAttribute('data-sok').indexOf(q) !== -1;
+          var match = !sokAktiv || item.getAttribute('data-sok').indexOf(q) !== -1;
           item.style.display = match ? '' : 'none';
           if (match) synlige++;
         });
         totaltSynlige += synlige;
-        section.classList.toggle('skjult', synlige === 0 && q !== '');
+        section.classList.toggle('skjult', synlige === 0);
       });
 
       var ingenTreff = document.getElementById('ingenTreff');
-      if (ingenTreff) ingenTreff.style.display = (totaltSynlige === 0 && q !== '') ? 'block' : 'none';
+      if (ingenTreff) ingenTreff.style.display = (totaltSynlige === 0 && (sokAktiv || aktivFilter !== 'alle')) ? 'block' : 'none';
+    }
+
+    // Filter-knapper
+    filterBar.querySelectorAll('.filter-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        filterBar.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('aktiv'); });
+        btn.classList.add('aktiv');
+        aktivFilter = btn.getAttribute('data-filter');
+        // Reset items (søk kan ha skjult noen)
+        document.querySelectorAll('[data-sok]').forEach(function(item) { item.style.display = ''; });
+        input.value = '';
+        applyState();
+      });
     });
+
+    // Søk
+    input.addEventListener('input', applyState);
   })();
   </script>
 </body>
