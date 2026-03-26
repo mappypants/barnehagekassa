@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turplanlegger og risikovurdering – barnehagekassa.no</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f2ed; color: #1a1a1a; min-height: 100vh; }
+
+    .site-header { background: white; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e8e3db; position: relative; }
+    .site-header img { height: 44px; width: auto; display: block; }
+    nav { display: flex; gap: 24px; align-items: center; }
+    nav a { color: #444; text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: color 0.15s; }
+    nav a:hover { color: #3d7272; }
+    .burger { display: none !important; flex-direction: column; justify-content: center; gap: 5px; width: 38px; height: 38px; background: none; border: none; cursor: pointer; padding: 4px; border-radius: 8px; transition: background 0.15s; }
+    .burger:hover { background: #f5f2ed; }
+    .burger span { display: block; width: 22px; height: 2px; background: #444; border-radius: 2px; transition: transform 0.25s ease, opacity 0.2s; }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .mobil-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border-bottom: 2px solid #e8e3db; box-shadow: 0 8px 24px rgba(0,0,0,0.10); flex-direction: column; padding: 8px 0 12px; z-index: 1000; }
+    .mobil-nav.open { display: flex; }
+    .mobil-nav a { padding: 12px 24px; color: #333; text-decoration: none; font-size: 1rem; font-weight: 500; border-bottom: 1px solid #f5f2ed; transition: background 0.12s, color 0.12s; }
+    .mobil-nav a:last-child { border-bottom: none; }
+    .mobil-nav a:hover { background: #f5f9f9; color: #3d7272; }
+    @media (max-width: 700px) { nav { display: none !important; } .burger { display: flex !important; } .site-header { padding: 12px 20px; } }
+    @media (min-width: 701px) { .mobil-nav { display: none !important; } }
+
+    .page-hero { background: #3d7272; color: white; padding: 52px 32px 44px; text-align: center; }
+    .page-hero h1 { font-size: 2rem; font-weight: 900; font-family: 'Quicksand', 'Segoe UI', Arial, sans-serif; margin-bottom: 10px; }
+    .page-hero p { color: rgba(255,255,255,0.90); font-size: 1rem; max-width: 560px; margin: 0 auto; line-height: 1.6; }
+
+    .page { max-width: 800px; margin: 0 auto; padding: 36px 24px 80px; }
+
+    .action-bar { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 22px; border-radius: 100px; font-size: 0.88rem; font-weight: 700; border: none; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; font-family: inherit; }
+    .btn-primary { background: #3d7272; color: white; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(61,114,114,0.25); }
+    .btn-secondary { background: #f5f2ed; color: #555; border: 1.5px solid #e0dbd3; }
+    .btn-secondary:hover { background: #e4f2f2; color: #3d7272; }
+
+    .form-section { background: white; border-radius: 16px; border: 1px solid #e8e3db; padding: 28px; margin-bottom: 18px; }
+    .section-title { font-size: 0.75rem; font-weight: 700; color: #3d7272; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .section-title::before { content: ''; display: inline-block; width: 14px; height: 2.5px; border-radius: 2px; background: #3d7272; }
+
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .field-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .field-grid, .field-grid-3 { grid-template-columns: 1fr; } }
+    .field-full { grid-column: 1 / -1; }
+
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 0.76rem; font-weight: 700; color: #777; text-transform: uppercase; letter-spacing: 0.5px; }
+    .field input, .field select, .field textarea {
+      padding: 9px 12px; border: 1.5px solid #e8e3db; border-radius: 9px;
+      font-size: 0.92rem; font-family: inherit; color: #1a1a1a;
+      background: #faf9f7; outline: none; transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #3d7272; background: white; }
+    .field textarea { resize: vertical; min-height: 72px; }
+
+    .radio-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+    .radio-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 100px; border: 1.5px solid #e8e3db; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #555; transition: border-color 0.15s, background 0.15s; background: white; user-select: none; }
+    .radio-pill input[type=radio] { display: none; }
+    .radio-pill:has(input:checked) { background: #e4f2f2; border-color: #3d7272; color: #3d7272; }
+
+    /* CHECKLIST */
+    .checklist { display: flex; flex-direction: column; gap: 10px; }
+    .check-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 10px; border: 1.5px solid #e8e3db; background: #faf9f7; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+    .check-item:hover { border-color: #c5dada; }
+    .check-item.checked { background: #edf7f7; border-color: #3d7272; }
+    .check-item input[type=checkbox] { display: none; }
+    .check-box { width: 20px; height: 20px; min-width: 20px; border-radius: 6px; border: 2px solid #c8c0b6; background: white; display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s; margin-top: 1px; }
+    .check-item.checked .check-box { background: #3d7272; border-color: #3d7272; }
+    .check-box svg { display: none; }
+    .check-item.checked .check-box svg { display: block; }
+    .check-text { flex: 1; }
+    .check-label { font-size: 0.92rem; font-weight: 600; color: #1a1a1a; line-height: 1.3; }
+    .check-sub { font-size: 0.78rem; color: #888; margin-top: 2px; line-height: 1.4; }
+
+    .check-item.risk-high { border-left: 3px solid #e05252; }
+    .check-item.risk-high.checked { border-left: 3px solid #3d7272; }
+    .risk-badge { font-size: 0.68rem; font-weight: 700; padding: 2px 7px; border-radius: 100px; margin-left: 6px; }
+    .badge-high { background: #fde8e8; color: #c53030; }
+    .badge-med { background: #fef3cd; color: #92620a; }
+
+    /* BARN MED BEHOV */
+    .barn-liste { display: flex; flex-direction: column; gap: 12px; }
+    .barn-kort { background: #faf9f7; border: 1.5px solid #e8e3db; border-radius: 12px; padding: 16px; position: relative; }
+    .barn-kort .remove-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; cursor: pointer; color: #bbb; font-size: 1.1rem; padding: 2px 6px; border-radius: 6px; transition: color 0.15s, background 0.15s; }
+    .barn-kort .remove-btn:hover { color: #e05252; background: #fde8e8; }
+
+    .progress-bar-wrap { background: #e8e3db; border-radius: 100px; height: 6px; margin-bottom: 24px; overflow: hidden; }
+    .progress-bar { background: #3d7272; height: 6px; border-radius: 100px; transition: width 0.4s ease; }
+    .progress-label { font-size: 0.78rem; color: #888; margin-bottom: 6px; }
+
+    /* UTSTYRSLISTE */
+    .utstyr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 560px) { .utstyr-grid { grid-template-columns: 1fr; } }
+
+    /* PRINT */
+    @media print {
+      .site-header, .page-hero, .action-bar, footer, nav, .mobil-nav, .burger, .remove-btn, .legg-til-btn { display: none !important; }
+      body { background: white; font-size: 10pt; }
+      .page { max-width: 100%; padding: 0; margin: 0; }
+      .form-section { border: 1px solid #ccc; border-radius: 6px; margin-bottom: 12px; page-break-inside: avoid; box-shadow: none; padding: 16px; }
+      .print-header { display: block !important; }
+      .check-item { border: 1px solid #ccc; border-radius: 4px; padding: 6px 10px; background: white; }
+      .check-item.checked { background: #f0f9f9; }
+      .utstyr-grid { grid-template-columns: 1fr 1fr 1fr; }
+      .progress-bar-wrap, .progress-label { display: none; }
+    }
+
+    .print-header {
+      display: none;
+      font-family: 'Quicksand', 'Segoe UI', Arial;
+      font-size: 15pt; font-weight: 900; color: #3d7272;
+      margin-bottom: 16px; padding-bottom: 8px;
+      border-bottom: 2px solid #3d7272;
+    }
+    .print-sub { font-size: 9pt; color: #777; font-weight: 400; margin-top: 2px; }
+
+    .legg-til-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 8px 16px; border-radius: 100px; background: #f5f2ed; border: 1.5px solid #e0dbd3; font-size: 0.82rem; font-weight: 700; cursor: pointer; color: #3d7272; font-family: inherit; transition: background 0.15s; }
+    .legg-til-btn:hover { background: #e4f2f2; }
+
+    footer { text-align: center; padding: 32px 24px; font-size: 0.8rem; color: #bbb; border-top: 1px solid #e8e3db; }
+  </style>
+</head>
+<body>
+
+<div class="site-header">
+  <a href="index.html"><img src="logo_cropped.png" alt="barnehagekassa.no"></a>
+  <nav>
+    <a href="index.html">Hjem</a>
+    <a href="aktivitetsgenerator.html">Verktøy</a>
+    <a href="periodeplan.html">Maler</a>
+    <a href="barnehageressurser.html">Ressurser</a>
+    <a href="om-meg.html">Om</a>
+  </nav>
+  <button class="burger" id="burgerBtn" aria-label="Meny"><span></span><span></span><span></span></button>
+</div>
+<nav class="mobil-nav" id="mobilNav">
+  <a href="index.html">Hjem</a>
+  <a href="aktivitetsgenerator.html">Verktøy</a>
+  <a href="periodeplan.html">Maler</a>
+  <a href="barnehageressurser.html">Ressurser</a>
+  <a href="om-meg.html">Om</a>
+</nav>
+
+<div class="page-hero">
+  <h1>Turplanlegger</h1>
+  <p>Planlegg tur og risikovurdering i samme skjema. Fyll ut, sjekk av, og skriv ut ferdig dokument. Gratis og uten pålogging.</p>
+</div>
+
+<div class="page">
+
+  <div class="print-header">
+    Turplanlegger og risikovurdering
+    <div class="print-sub">barnehagekassa.no &nbsp;&middot;&nbsp; Gratis for barnehageansatte</div>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-primary" onclick="window.print()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Lagre som PDF / skriv ut
+    </button>
+    <button class="btn btn-secondary" onclick="nullstill()">Nullstill skjema</button>
+  </div>
+
+  <div class="progress-label" id="progressLabel">0 av 7 seksjoner ferdig</div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+
+  <!-- 1. GRUNNINFO -->
+  <div class="form-section" data-section="info">
+    <div class="section-title">Turinfo</div>
+    <div class="field-grid">
+      <div class="field">
+        <label>Barnehagens navn</label>
+        <input type="text" id="barnehage" placeholder="Navn på barnehagen">
+      </div>
+      <div class="field">
+        <label>Avdeling</label>
+        <input type="text" id="avdeling" placeholder="Avdelingens navn">
+      </div>
+      <div class="field">
+        <label>Dato for turen</label>
+        <input type="date" id="turdato">
+      </div>
+      <div class="field">
+        <label>Oppmøte klokkeslett</label>
+        <input type="time" id="oppmote">
+      </div>
+      <div class="field">
+        <label>Destinasjon</label>
+        <input type="text" id="sted" placeholder="F.eks. Frognerparken, Holmenkollen">
+      </div>
+      <div class="field">
+        <label>Adresse / møtepunkt</label>
+        <input type="text" id="adresse" placeholder="F.eks. Kirkeveien 40, Oslo">
+      </div>
+      <div class="field">
+        <label>Transport</label>
+        <div class="radio-group">
+          <label class="radio-pill"><input type="radio" name="transport" value="Til fots"> Til fots</label>
+          <label class="radio-pill"><input type="radio" name="transport" value="Buss"> Buss</label>
+          <label class="radio-pill"><input type="radio" name="transport" value="T-bane"> T-bane</label>
+          <label class="radio-pill"><input type="radio" name="transport" value="Tog"> Tog</label>
+          <label class="radio-pill"><input type="radio" name="transport" value="Bil/minibuss"> Bil/minibuss</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Planlagt hjemkomst</label>
+        <input type="time" id="hjemkomst">
+      </div>
+    </div>
+    <div class="field-grid" style="margin-top:16px;">
+      <div class="field">
+        <label>Antall barn</label>
+        <input type="number" id="antallBarn" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label>Antall ansatte</label>
+        <input type="number" id="antallAnsatte" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label>Kontaktperson (ansvarlig voksen på tur)</label>
+        <input type="text" id="ansvarlig" placeholder="Navn og mobilnummer">
+      </div>
+      <div class="field">
+        <label>Backup-kontakt (på barnehagen)</label>
+        <input type="text" id="backup" placeholder="Navn og mobilnummer">
+      </div>
+      <div class="field field-full">
+        <label>Formål med turen</label>
+        <textarea id="formal" placeholder="Hva er målet med turen? Kobling til rammeplanen, tema, osv."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. RISIKOVURDERING -->
+  <div class="form-section" data-section="risiko">
+    <div class="section-title">Risikovurdering</div>
+    <p style="font-size:0.82rem;color:#888;margin-bottom:16px;">Kryss av for risikoer som er vurdert og håndtert. Rød kant = særlig viktig å avklare.</p>
+    <div class="checklist" id="risikoListe">
+
+      <div class="check-item risk-high" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Medisinsk beredskap <span class="risk-badge badge-high">Viktig</span></div>
+          <div class="check-sub">Hvem har med medisin til barn med behov (epipen, astmainhalator, insulinpenn)? Er dette fordelt og avklart med foresatte?</div>
+        </div>
+      </div>
+
+      <div class="check-item risk-high" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Allergier og mat <span class="risk-badge badge-high">Viktig</span></div>
+          <div class="check-sub">Er alle allergier kartlagt for mat som tas med? Er det barn med anafylaksirisiko?</div>
+        </div>
+      </div>
+
+      <div class="check-item risk-high" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Foresattes samtykke <span class="risk-badge badge-high">Viktig</span></div>
+          <div class="check-sub">Er alle foresatte varslet og har samtykket? Gjelder særlig hvis turen er utenfor barnehagens normale nærområde.</div>
+        </div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Trafikk og ferdsel langs vei</div>
+          <div class="check-sub">Er ruten langs vei kartlagt? Har barna vester? Er det nok voksne til å hjelpe ved veikryssinger?</div>
+        </div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Vær og temperatur</div>
+          <div class="check-sub">Er værmeldingen sjekket? Er barna kledd hensiktsmessig? Er det plan for ekstremvær?</div>
+        </div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Telling og oppsyn</div>
+          <div class="check-sub">Er det avtalt faste tellepunkter? Hvem har ansvar for hvilke barn? Er bemanningsnorm oppfylt på turen?</div>
+        </div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Kommunikasjon og mobildekning</div>
+          <div class="check-sub">Er det mobildekning på destinasjonen? Er alle ansatte nåbare? Hvem ringes ved hendelse?</div>
+        </div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Drukningsfare / vann</div>
+          <div class="check-sub">Er det vann (elv, sjø, dam) i nærheten av destinasjonen? Er dette kartlagt og er det etablert sikkerhetssone?</div>
+        </div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Fare ved terreng (stup, klatring, glatt)</div>
+          <div class="check-sub">Er det stup, bratte skråninger, glatt underlag eller annet farlig terreng? Er barn og ansatte kjent med grensene?</div>
+        </div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Fremmed kontakt og sikkerhet</div>
+          <div class="check-sub">Er det snakket med barna om å ikke gå med fremmede? Er det avtalt samlested ved separat hendelse?</div>
+        </div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Barn med særlige behov (motorisk, kognitiv, atferd)</div>
+          <div class="check-sub">Er det gjort tilpasninger for barn som trenger ekstra støtte eller tettere oppsyn på tur?</div>
+        </div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text">
+          <div class="check-label">Transport (buss, tog, bil)</div>
+          <div class="check-sub">Er det sjekket at alle barn sitter rolig og trygt? Brukes bilbelter/sikringsutstyr der det er aktuelt?</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="field" style="margin-top:18px;">
+      <label>Andre risikoer eller tiltak (fritekst)</label>
+      <textarea id="andreRisikoer" placeholder="Beskriv eventuelle andre forhold som er vurdert..."></textarea>
+    </div>
+  </div>
+
+  <!-- 3. BARN MED SÆRLIGE BEHOV -->
+  <div class="form-section" data-section="behov">
+    <div class="section-title">Barn med medisinsk behov eller allergi på turen</div>
+    <p style="font-size:0.82rem;color:#888;margin-bottom:16px;">Legg til ett kort per barn som trenger særlig oppfølging på turen. La stå tomt hvis ingen.</p>
+    <div class="barn-liste" id="barnListe"></div>
+    <button class="legg-til-btn" onclick="leggTilBarn()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Legg til barn
+    </button>
+  </div>
+
+  <!-- 4. UTSTYRSLISTE -->
+  <div class="form-section" data-section="utstyr">
+    <div class="section-title">Utstyrsliste</div>
+    <div class="utstyr-grid" id="utstyrListe">
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Førstehjelpsveske</div></div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Mobiltelefon (ladet)</div></div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Refleksvester til barna</div></div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Drikkevann til alle</div></div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Mat/niste</div></div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Medisin for barn med behov</div></div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Liste over barna med foresattes tlf.</div></div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Bleier / stell (ved behov)</div></div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Solkrem (ved behov)</div></div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Ekstra tøy (ett sett)</div></div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Bærepose / søppelpose</div></div>
+      </div>
+
+      <div class="check-item" onclick="toggleCheck(this)">
+        <input type="checkbox">
+        <div class="check-box"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check-text"><div class="check-label">Toalettpapir / våtservietter</div></div>
+      </div>
+
+    </div>
+    <div class="field" style="margin-top:16px;">
+      <label>Annet utstyr (skriv inn)</label>
+      <textarea id="annetUtstyr" placeholder="F.eks. kikkert, insektkasse, kart, tau til leik..."></textarea>
+    </div>
+  </div>
+
+  <!-- 5. ANSVARSFORDELING -->
+  <div class="form-section" data-section="ansvar">
+    <div class="section-title">Ansvarsfordeling</div>
+    <div id="ansvarListe" class="barn-liste"></div>
+    <button class="legg-til-btn" onclick="leggTilAnsvar()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Legg til ansvarsperson
+    </button>
+  </div>
+
+  <!-- 6. NØDNUMRE OG VARSLING -->
+  <div class="form-section" data-section="varsling">
+    <div class="section-title">Nødnumre og varsling</div>
+    <div class="field-grid">
+      <div class="field">
+        <label>Nærmeste legevakt</label>
+        <input type="text" id="legevakt" placeholder="Navn og tlf.">
+      </div>
+      <div class="field">
+        <label>Barnehagens hovednummer</label>
+        <input type="text" id="bhgnummer" placeholder="Telefonnummer">
+      </div>
+      <div class="field">
+        <label>Styrer / daglig leder</label>
+        <input type="text" id="styrer" placeholder="Navn og mobilnummer">
+      </div>
+      <div class="field">
+        <label>AMK / nødsituasjon</label>
+        <input type="text" id="amk" value="113 (AMK) · 112 (Politi) · 110 (Brann)" readonly style="background:#faf9f7;color:#888;">
+      </div>
+      <div class="field field-full">
+        <label>Prosedyre ved hendelse (hvem varsles, i hvilken rekkefølge)</label>
+        <textarea id="prosedyre" placeholder="F.eks.: 1) Ring AMK ved alvorlig skade. 2) Ring foresatte. 3) Varsle styrer. 4) Skriv avviksmelding."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. UNDERSKRIFT -->
+  <div class="form-section" data-section="sign">
+    <div class="section-title">Godkjenning og underskrift</div>
+    <div class="field-grid">
+      <div class="field">
+        <label>Planen laget av</label>
+        <input type="text" id="lagdAv" placeholder="Navn og stilling">
+      </div>
+      <div class="field">
+        <label>Dato</label>
+        <input type="date" id="lagdDato">
+      </div>
+      <div class="field">
+        <label>Godkjent av (leder/styrer)</label>
+        <input type="text" id="godkjentAv" placeholder="Navn">
+      </div>
+      <div class="field">
+        <label>Dato godkjent</label>
+        <input type="date" id="godkjentDato">
+      </div>
+      <div class="field field-full">
+        <label>Kommentarer fra godkjenner</label>
+        <textarea id="kommentarer" placeholder="Eventuelle merknader eller krav fra leder..."></textarea>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <a href="index.html" style="color:#3d7272;text-decoration:none;font-weight:600;">barnehagekassa.no</a>
+  &nbsp;&middot;&nbsp; Gratis verktøy for barnehageansatte
+</footer>
+
+<script>
+  document.getElementById('burgerBtn').addEventListener('click', function() {
+    this.classList.toggle('open');
+    document.getElementById('mobilNav').classList.toggle('open');
+  });
+
+  // Set today's date
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('lagdDato').value = today;
+
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+    const cb = el.querySelector('input[type=checkbox]');
+    if (cb) cb.checked = !cb.checked;
+    oppdaterProgress();
+  }
+
+  // Progress
+  const seksjoner = ['info','risiko','behov','utstyr','ansvar','varsling','sign'];
+  function oppdaterProgress() {
+    let ferdig = 0;
+    seksjoner.forEach(s => {
+      const seksjon = document.querySelector('[data-section="'+s+'"]');
+      if (!seksjon) return;
+      const inputs = seksjon.querySelectorAll('input:not([type=checkbox]):not([type=radio]), textarea');
+      const radios = seksjon.querySelectorAll('input[type=radio]');
+      const checks = seksjon.querySelectorAll('.check-item.checked');
+      let seksjonFerdig = false;
+      inputs.forEach(i => { if (i.value && i.value.trim()) seksjonFerdig = true; });
+      if (checks.length > 0) seksjonFerdig = true;
+      radios.forEach(r => { if (r.checked) seksjonFerdig = true; });
+      if (seksjonFerdig) ferdig++;
+    });
+    const pct = Math.round((ferdig / seksjoner.length) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = ferdig + ' av ' + seksjoner.length + ' seksjoner ferdig';
+  }
+
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    el.addEventListener('input', oppdaterProgress);
+    el.addEventListener('change', oppdaterProgress);
+  });
+
+  // Barn med behov
+  let barnTeller = 0;
+  function leggTilBarn() {
+    barnTeller++;
+    const id = 'barn' + barnTeller;
+    const div = document.createElement('div');
+    div.className = 'barn-kort';
+    div.id = id;
+    div.innerHTML = `
+      <button class="remove-btn" onclick="fjernKort('${id}')" title="Fjern">×</button>
+      <div class="field-grid">
+        <div class="field"><label>Barnets navn</label><input type="text" placeholder="Fornavn"></div>
+        <div class="field"><label>Fødselsdato / alder</label><input type="text" placeholder="F.eks. 3 år"></div>
+        <div class="field"><label>Diagnose / tilstand</label><input type="text" placeholder="F.eks. astma, nøtteallergi, epilepsi"></div>
+        <div class="field"><label>Medisin/hjelpemiddel</label><input type="text" placeholder="F.eks. Ventoline, Epipen"></div>
+        <div class="field"><label>Hvem bærer medisinen</label><input type="text" placeholder="Ansattes navn"></div>
+        <div class="field"><label>Foresattes mobilnummer</label><input type="text" placeholder="Ring ved hendelse"></div>
+        <div class="field field-full"><label>Spesielle instruksjoner</label><textarea placeholder="F.eks. skal ikke spise nøtter, trenger hvile etter 2 timer, varsle ved..."></textarea></div>
+      </div>
+    `;
+    document.getElementById('barnListe').appendChild(div);
+    oppdaterProgress();
+  }
+
+  // Ansvarspersoner
+  let ansvarTeller = 0;
+  function leggTilAnsvar() {
+    ansvarTeller++;
+    const id = 'ansvar' + ansvarTeller;
+    const div = document.createElement('div');
+    div.className = 'barn-kort';
+    div.id = id;
+    div.innerHTML = `
+      <button class="remove-btn" onclick="fjernKort('${id}')" title="Fjern">×</button>
+      <div class="field-grid">
+        <div class="field"><label>Navn og stilling</label><input type="text" placeholder="F.eks. Kari Nordmann, assistent"></div>
+        <div class="field"><label>Mobilnummer</label><input type="text" placeholder="Mobilnummer på turen"></div>
+        <div class="field field-full"><label>Ansvarsområde</label><textarea placeholder="F.eks. ansvar for gruppe A (5 barn): Sofie, Lukas, Emma, Noah, Maja. Har førstehjelpsveske." style="min-height:56px;"></textarea></div>
+      </div>
+    `;
+    document.getElementById('ansvarListe').appendChild(div);
+    oppdaterProgress();
+  }
+
+  function fjernKort(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+    oppdaterProgress();
+  }
+
+  function nullstill() {
+    if (!confirm('Nullstille hele skjemaet?')) return;
+    document.querySelectorAll('input:not([readonly]):not([type=checkbox]):not([type=radio]), textarea:not([readonly])').forEach(el => el.value = '');
+    document.querySelectorAll('input[type=radio]').forEach(el => el.checked = false);
+    document.querySelectorAll('.check-item.checked').forEach(el => el.classList.remove('checked'));
+    document.querySelectorAll('.check-item input[type=checkbox]').forEach(el => el.checked = false);
+    document.getElementById('barnListe').innerHTML = '';
+    document.getElementById('ansvarListe').innerHTML = '';
+    document.getElementById('lagdDato').value = today;
+    barnTeller = 0;
+    ansvarTeller = 0;
+    oppdaterProgress();
+  }
+</script>
+</body>
+</html>
