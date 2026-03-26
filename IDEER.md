@@ -1,30 +1,24 @@
 # Ideer for barnehagekassa.no
-_Notat laget 21. mars 2026 — sist oppdatert 25. mars 2026_
+_Notat laget 21. mars 2026 — sist oppdatert 25. mars 2026 (automatisk analyse)_
 
 ---
 
 ## 🛠️ Nye interaktive verktøy
 
-- ✅ **Observasjonsskjema-bygger** — fyll inn barnets navn, dato, situasjon → ferdig formatert, utskriftsvennlig observasjonsskjema _(23. mars)_
-- **Sesongkalender for aktiviteter** — «hva kan vi gjøre i mars?» med ideer knyttet til årstid, høytider og rammeplan-tema
-- **Foreldresamtale-guide** — interaktiv sjekkliste / struktur for utviklingssamtaler
+- ✅ **Observasjonsskjema-bygger** — støtter 6 metoder (løpende protokoll, praksisfortelling, sosiogram, tidssampling m.m.), utskriftsvennlig _(23. mars)_
+- ✅ **Navnetrekkhjul** — legg inn navn, trykk spin, hjulet trekker hvem som er hjelpebarn eller starter sangen. Klar for TikTok/Reels _(laget)_
+- ✅ **Avviksskjema** → laget som **Skademeldingsskjema** (skademelding.html) — dekker §18-plikten _(laget)_
+- ✅ **Opptaksplanlegger** — drag-og-slipp-fordeling av barn og ansatte på avdelinger, fargekoder for alder/stilling, skriv ut ferdig oversikt _(laget, ikke i ideelisten opprinnelig)_
 
-### Nye ideer fra dypdykk (23. mars)
-
-**Daglig praksis og dokumentasjon**
-- **Dagsrapportbygger** — fyll inn dato, gruppe og barnenavn, velg fra kategorier for mat/søvn/humør/aktivitet, skriv ut ferdig ark
-- **Avviksskjema** — for uhell og hendelser (jf. §18 barnehageloven), noe alle barnehager er pliktige å ha men ingen enkel gratis løsning finnes
-- **Allergioversikt-bygger** — registrer barna og allergiene deres, skriv ut laminert A4 til kjøkkenet
-
-**Pedagogisk planlegging**
-- **Progresjonstracker** — knytt observasjoner til rammeplanen fagområder (kommunikasjon og språk, kropp og bevegelse, natur og miljø osv.) for hvert barn
-- **Refleksjonsrunde-verktøy** — velg refleksjonsmodell (LØFT, styrkebasert, or-og-bords-runden) og få en strukturert guide til personalmøtet
-- **Sesongkalender** — se over (høy prioritet, mye etterspurt)
-
-**Praktiske hverdagsverktøy**
-- ✅ **Navnetrekkhjul** — legg inn barna på avdelingen, trekk tilfeldig hvem som er hjelpebarn, starter med sang osv. _(24. mars)_
+**Gjenstår:**
+- ✅ **Sesongkalender for aktiviteter** — aktivitetsideer for alle 12 måneder, filtrerbar på kategori, knyttet til rammeplanen _(26. mars)_
+- **Dagsrapportbygger** — fyll inn dato, gruppe og barnenavn, velg fra kategorier (mat/søvn/humør/aktivitet), skriv ut ferdig ark
+- ✅ **Turplanlegger og risikovurderingsskjema** — sjekkliste for risiko, utstyr, medisin, ansvarsfordeling og varsling. Klar til utskrift _(26. mars)_
+- **Allergioversikt-bygger** — registrer barna og allergiene, skriv ut laminert A4 til kjøkkenet
 - **Aktivitetstimer** — forhåndsinnstilte tider (3 min ryddetid, 5 min pause, 20 min frilek) med lydsignal
-- **Turplanlegger og risikovurderingsskjema** — sjekkliste for utstyr, medisinbehov, sikkerhetsrutiner og ansvarsfordeling ved utflukter (pålagt, men ingen enkel digital løsning finnes)
+- **Foreldresamtale-guide** — interaktiv sjekkliste/struktur for utviklingssamtaler
+- **Progresjonstracker** — knytt observasjoner til rammeplanen fagområder per barn
+- **Refleksjonsrunde-verktøy** — velg modell (LØFT, styrkebasert osv.), få strukturert guide til personalmøtet
 
 ---
 
@@ -36,12 +30,20 @@ _Notat laget 21. mars 2026 — sist oppdatert 25. mars 2026_
 
 ---
 
+## ⚠️ Teknisk gjeld
+
+- ✅ ~~Bytt ut base64-logoen~~ — alle HTML-filer bruker nå `logo_cropped.png` som ekstern fil.
+- **SEO: tittel-tags og meta-descriptions** — ikke konsistente på tvers av alle sider. Bør gjøres når siden har litt mer innhold og trafikk.
+- ✅ ~~Ekvivalentkalkulator ikke pushet~~ — er deployet og ligger på forsiden.
+
+---
+
 ## 🎨 Design og brukeropplevelse
 
 - ✅ **Søk/filter på forsiden** — søkeboks finnes og er utvidet: kortene søkes nå på utvidede nøkkelord fra undersider (f.eks. TRAS, ASK, autisme, PPT). Kortene er også sortert alfabetisk innen hver kategori.
 - ✅ **Bedre footer** — strukturert med kategorier: Verktøy / Maler / Ressurser / Om _(23. mars)_
 - ✅ **Hover-effekter på kort** — subtile 150–200ms animasjoner for mer polert følelse _(23. mars)_
-- **Ytelse: bytt ut base64-logoen** — logoen er ~330K tegn innbakt i hver HTML-fil; ekstern bildefil ville gjort sidene mye raskere å laste
+- _(se Teknisk gjeld over)_
 
 ---
 
@@ -60,8 +62,15 @@ _Notat laget 21. mars 2026 — sist oppdatert 25. mars 2026_
 - **Overgang barnehage til skole** — Udirs veileder, samarbeidsskjemaer og sjekklister for overgangssamtalen (særlig relevant om våren)
 - **Digital kompetanse for barn** — Lær Kidsa Koding og Kodeklubben har gratis opplegg tilpasset barnehagealder
 - **HMS og trivsel for ansatte** — Arbeidstilsynets veileder for psykososialt arbeidsmiljø i barnehagen, fagforeningenes HMS-ressurser
-- **Regelverk i barnehage** — tips fra kollega (24. mars): fylle ut nærmere
 - **Flerkulturell kompetanse** — utvide NAFO-lenker under spesialpedagogikk, ressurser for flerspråklige barn
+
+---
+
+## 📣 Markedsføring og outreach
+
+- ✉️ Presentasjonsmail sendt til barnehage.no, barnehageforum.no og andre aktører mandag 23. mars kveld. Venter på svar — gi det til fredag 28. mars før evt. oppfølging.
+- Full plan ligger i `marketing-strategi.md`: e-postmal, kontaktliste, Instagram/LinkedIn-opplegg via Buffer, kronikk-idé til barnehage.no.
+- Prioritert rekkefølge for outreach: 1) barnehage.no (kronikk), 2) Facebook-grupper for barnehageansatte, 3) Utdanningsforbundet og Fagforbundet nyhetsbrev.
 
 ---
 
@@ -74,4 +83,7 @@ _Notat laget 21. mars 2026 — sist oppdatert 25. mars 2026_
 - ✅ Alfabetisk sortering av kort innen alle kategorier på forsiden _(23. mars)_
 - ✅ **Font på overskrifter byttet til Quicksand** — alle 27 HTML-filer oppdatert fra Plus Jakarta Sans til Quicksand 500 (medium) for å matche logoens vekt og stil _(23. mars)_
 - ✅ **Logo konsistent på alle sider** — observasjon.html brukte gammelt logo-illustrasjon.png (laptop-logo); nå er alle sider samkjørt med barnehagekassa-logoen _(23. mars)_
-- ✅ **Opptaksplanlegger: stor oppdatering** — lagt til stillingsprosent, avdelingstype og bemanningsnorm-kalkulator; ressursbarn-flagg med stjernemarkering; redigering av barn og ansatte; justerbar layout på barnekort; redigerbare fargekoder per årstall; korrektur (Småbarn, snurr); fikset bugs i logo og navnetrekkhjul _(24. mars)_
+- ✅ **Ekvivalentkalkulator** — deployet og på forsiden _(23. mars)_
+- ✅ **ASK-ressursside** (ask.html) — faglig side om Alternativ og supplerende kommunikasjon med lovgrunnlag, ressurser og veiledning _(laget)_
+- ✅ **Opptaksplanlegger** (opptak.html) — drag-og-slipp fordeling av barn og ansatte _(laget)_
+- ✅ **Fikset 404: maler.html** — peker nå til kreativt-arbeid.html i barnevern.html og fagprat-hjulet.html _(25. mars)_
