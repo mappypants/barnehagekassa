@@ -100,6 +100,26 @@
 
 ---
 
+## GitHub-push regler (viktig – unngå overskriving)
+
+**index.html skal ALLTID hentes fra GitHub før endringer gjøres.**
+Den lokale filen kan ligge bak GitHub-versjonen og overskrive kritiske funksjoner
+(sticky filter-bar, søk, kortoversikt).
+
+Fremgangsmåte når index.html skal oppdateres:
+1. Hent gjeldende versjon fra GitHub via API (`GET /repos/mappypants/barnehagekassa/contents/index.html`)
+2. Dekode og gjør endringer på den hentede strengen
+3. Push resultatet tilbake — aldri bruk lokal fil som utgangspunkt
+
+**Versjonsnummer ved push:**
+1. Hent `VERSION`-fila fra GitHub, les nummeret (f.eks. `0.9`)
+2. Øk patch-nummeret (`0.9` → `0.10`, `0.10` → `0.11` osv.)
+3. Erstatt gammelt versjonsnummer med nytt i alle endrede HTML-filer:
+   søk etter `<span style="opacity:0.45">vX.X</span>` og bytt til nytt nummer
+4. Push `VERSION`-fila sammen med de andre filene
+
+---
+
 ## Stilregler (aldri bryt disse)
 
 - **Ingen emojis** – noensinne. Ikke i tekst, ikke i knapper, ikke som ikoner. Bruk SVG-ikoner eller ren tekst.
