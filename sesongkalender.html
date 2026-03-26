@@ -60,7 +60,12 @@
 
     /* MAANED HEADER */
     .maaned-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 24px; background: white; border-radius: 16px; border: 1px solid #e8e3db; padding: 24px 28px; }
-    .maaned-icon { font-size: 2.8rem; line-height: 1; min-width: 52px; text-align: center; }
+    .maaned-icon { width: 56px; height: 56px; min-width: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+    .maaned-icon svg { width: 28px; height: 28px; }
+    .maaned-icon.sesong-vinter { background: #dceef7; color: #3a6090; }
+    .maaned-icon.sesong-var { background: #ddf0dd; color: #2e7d32; }
+    .maaned-icon.sesong-sommer { background: #fff3cc; color: #8a6200; }
+    .maaned-icon.sesong-host { background: #fde3cc; color: #944e00; }
     .maaned-info h2 { font-size: 1.5rem; font-weight: 900; font-family: 'Quicksand', 'Segoe UI', Arial, sans-serif; color: #1a1a1a; margin-bottom: 4px; }
     .maaned-info .sesong-tag { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
     .sesong-vinter { background: #e8f0f8; color: #3a6090; }
@@ -172,7 +177,7 @@
   });
 
   const maaneder = [
-    { navn: 'Januar', sesong: 'vinter', icon: '❄️', sesongKlasse: 'sesong-vinter',
+    { navn: 'Januar', sesong: 'vinter', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/><polyline points="10,4 12,2 14,4"/><polyline points="10,20 12,22 14,20"/><polyline points="4,10 2,12 4,14"/><polyline points="20,10 22,12 20,14"/></svg>`, sesongKlasse: 'sesong-vinter',
       merkedager: ['Nyttår (1. jan)', 'Mørketid pågår'],
       aktiviteter: [
         { kat: 'ute', tittel: 'Snølek og snøbygging', beskr: 'Lag snømann, snøfestning eller snøball-kasting. La barna bestemme hva de bygger.', rp: 'Kropp, bevegelse og helse' },
@@ -185,7 +190,7 @@
         { kat: 'mat', tittel: 'Varm kakao og boller', beskr: 'Lag kakao fra bunnen og enkle boller. Snakk om ingrediensene og prosessen.', rp: 'Kropp, bevegelse og helse' },
       ]
     },
-    { navn: 'Februar', sesong: 'vinter', icon: '🌨️', sesongKlasse: 'sesong-vinter',
+    { navn: 'Februar', sesong: 'vinter', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`, sesongKlasse: 'sesong-vinter',
       merkedager: ['Samefolkets dag (6. feb)', 'Valentinsdag (14. feb)'],
       aktiviteter: [
         { kat: 'tradisjon', tittel: 'Samefolkets dag', beskr: 'Lær om samisk kultur, joik, kofte og det samiske flagget. Se på bilder og hør joik-musikk. Snakk om urfolk og mangfold.', rp: 'Etikk, religion og filosofi' },
@@ -197,7 +202,7 @@
         { kat: 'inne', tittel: 'Boklesing og kosestund', beskr: 'Velg bøker med vinter- og kjærlighetstema. La barna finne seg et kosested og les høyt.', rp: 'Kommunikasjon, språk og tekst' },
       ]
     },
-    { navn: 'Mars', sesong: 'vår', icon: '🌱', sesongKlasse: 'sesong-var',
+    { navn: 'Mars', sesong: 'vår', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12C8 12 5 9 5 5c4 0 7 3 7 7z"/><path d="M12 12c4 0 7-3 7-7-4 0-7 3-7 7z"/></svg>`, sesongKlasse: 'sesong-var',
       merkedager: ['Internasjonal kvinnedag (8. mars)', 'Vår på vei'],
       aktiviteter: [
         { kat: 'natur', tittel: 'Naturobservasjoner: Vår på vei', beskr: 'Se etter de første tegnene på vår: snøklokker, knopper, fugler som kommer tilbake. Lag et observasjonskart der barna tegner det de finner.', rp: 'Natur, miljø og teknologi' },
@@ -209,7 +214,7 @@
         { kat: 'musikk', tittel: 'Vårens fugler', beskr: 'Hør på fuglelyder og prøv å gjenkjenne dem. Syng "Byssan lull" og andre fugle-sanger. Lag fuglelyder med stemmen.', rp: 'Kunst, kultur og kreativitet' },
       ]
     },
-    { navn: 'April', sesong: 'vår', icon: '🐣', sesongKlasse: 'sesong-var',
+    { navn: 'April', sesong: 'vår', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 9c0-3-1.5-5-3.5-5S5 6 5 8c0 3 3 4 5 4"/><path d="M9 12c-3 0-5 1.5-5 3.5S6 19 8 19c3 0 4-3 4-5"/><path d="M12 15c0 3 1.5 5 3.5 5S19 18 19 16c0-3-3-4-5-4"/><path d="M15 12c3 0 5-1.5 5-3.5S18 5 16 5c-3 0-4 3-4 5"/></svg>`, sesongKlasse: 'sesong-var',
       merkedager: ['1. april', 'Påske (varierer, typisk april)'],
       aktiviteter: [
         { kat: 'tradisjon', tittel: 'Påskeaktiviteter', beskr: 'Lag påskepynt: kylling av gul pompong, egg med mønster, påskegreiner med fargerike fjær. Snakk om hva påsken betyr.', rp: 'Etikk, religion og filosofi' },
@@ -221,7 +226,7 @@
         { kat: 'drama', tittel: '1. april-humor', beskr: 'Snakk om humor og spøk. La barna finne på morsomme (ufarlige) spøker. Hva er det som gjør noe morsomt?', rp: 'Kommunikasjon, språk og tekst' },
       ]
     },
-    { navn: 'Mai', sesong: 'vår', icon: '🇳🇴', sesongKlasse: 'sesong-var',
+    { navn: 'Mai', sesong: 'vår', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="7.05" y2="7.05"/><line x1="16.95" y1="16.95" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="7.05" y2="16.95"/><line x1="16.95" y1="7.05" x2="19.78" y2="4.22"/></svg>`, sesongKlasse: 'sesong-var',
       merkedager: ['Arbeidernes dag (1. mai)', '17. mai – Grunnlovsdagen', 'Ascension/Kristi himmelfartsdag (varierer)'],
       aktiviteter: [
         { kat: 'tradisjon', tittel: '17. mai-forberedelser', beskr: 'Lag norske flagg, pynt barnehagen, øv på nasjonalsangen og snakk om hva grunnloven betyr i enkle ord. Hva er demokrati?', rp: 'Etikk, religion og filosofi' },
@@ -233,7 +238,7 @@
         { kat: 'musikk', tittel: 'Nasjonalsang og barnesanger', beskr: 'Øv på "Ja vi elsker" og andre norske barnesanger. La barna lede sangen med en pinne.', rp: 'Kunst, kultur og kreativitet' },
       ]
     },
-    { navn: 'Juni', sesong: 'sommer', icon: '☀️', sesongKlasse: 'sesong-sommer',
+    { navn: 'Juni', sesong: 'sommer', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M2 20c2-2 4-3 6-3s4 2 6 2 4-1 6-3"/></svg>`, sesongKlasse: 'sesong-sommer',
       merkedager: ['Sankthans (23. juni)', 'Skolestart nærmer seg for de eldste'],
       aktiviteter: [
         { kat: 'tradisjon', tittel: 'Sankthansfeiring', beskr: 'Lag bål (der det er tillatt), syng sankthans-sanger og snakk om midtsommer-tradisjonen. Hva er kortest natt og lengst dag?', rp: 'Etikk, religion og filosofi' },
@@ -245,7 +250,7 @@
         { kat: 'mat', tittel: 'Utemåltid og piknik', beskr: 'Spis ute i gresset. La barna hjelpe med å bære og dekke på. Snakk om matnett og dele med hverandre.', rp: 'Kropp, bevegelse og helse' },
       ]
     },
-    { navn: 'Juli', sesong: 'sommer', icon: '🌞', sesongKlasse: 'sesong-sommer',
+    { navn: 'Juli', sesong: 'sommer', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7"/></svg>`, sesongKlasse: 'sesong-sommer',
       merkedager: ['Sommerferie (de fleste barnehager redusert drift)'],
       aktiviteter: [
         { kat: 'ute', tittel: 'Vannleker og sandlek', beskr: 'Fritt utendørs opphold med vann og sand. La barna bygge, grave og eksperimentere. Minst mulig styring.', rp: 'Kropp, bevegelse og helse' },
@@ -256,7 +261,7 @@
         { kat: 'musikk', tittel: 'Utekonser med rytmeinstrumenter', beskr: 'Ta med tamburiner, bjeller og kastagnetter ut. Syng populære barnesanger i solen.', rp: 'Kunst, kultur og kreativitet' },
       ]
     },
-    { navn: 'August', sesong: 'sommer', icon: '🎒', sesongKlasse: 'sesong-sommer',
+    { navn: 'August', sesong: 'sommer', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/></svg>`, sesongKlasse: 'sesong-sommer',
       merkedager: ['Ny barnehagestart (ca. 1. aug)', 'Ny oppstart for mange barn og ansatte'],
       aktiviteter: [
         { kat: 'tilvenning', tittel: 'Bli-kjent-leker', beskr: 'Navnelek i ring, "hvem er jeg?"- spill, smil-stafett. Fokus på å huske hverandres navn og lage trygg stemning.', rp: 'Kommunikasjon, språk og tekst' },
@@ -268,7 +273,7 @@
         { kat: 'drama', tittel: 'Barnehagerunde med historiefortelling', beskr: 'Gå rundt i barnehagen og fortell historier om steder og ting. Hva er hemmelig under trappen? Hva bor i fuglereiret?', rp: 'Kommunikasjon, språk og tekst' },
       ]
     },
-    { navn: 'September', sesong: 'høst', icon: '🍂', sesongKlasse: 'sesong-host',
+    { navn: 'September', sesong: 'høst', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`, sesongKlasse: 'sesong-host',
       merkedager: ['Høstjevndøgn (ca. 22. sept)', 'FN-dagen nærmer seg (24. okt)'],
       aktiviteter: [
         { kat: 'natur', tittel: 'Høstinnsamling', beskr: 'Let etter epler, nøtter, kastanjer, kongler og bær. Sorter etter form, farge og størrelse. Hvem finner flest sorter?', rp: 'Natur, miljø og teknologi' },
@@ -280,7 +285,7 @@
         { kat: 'musikk', tittel: 'Høstsanger', beskr: 'Syng sanger om høst og harvest: "Det lyser i stille grender", "Høst-sang". Lag rytme med kongler og nøtter.', rp: 'Kunst, kultur og kreativitet' },
       ]
     },
-    { navn: 'Oktober', sesong: 'høst', icon: '🎃', sesongKlasse: 'sesong-host',
+    { navn: 'Oktober', sesong: 'høst', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M12 2v3"/><ellipse cx="12" cy="14" rx="7" ry="7"/><path d="M9 12h2l1 2 1-4 1 2h2"/></svg>`, sesongKlasse: 'sesong-host',
       merkedager: ['FN-dagen (24. okt)', 'Halloween (31. okt)'],
       aktiviteter: [
         { kat: 'tradisjon', tittel: 'FN-dagen og mangfold', beskr: 'Snakk om at alle barn i hele verden har de samme rettighetene. Se på kart. Hva er likt og ulikt hos barn i forskjellige land?', rp: 'Etikk, religion og filosofi' },
@@ -292,7 +297,7 @@
         { kat: 'mat', tittel: 'Gresskarsuppe', beskr: 'Lag enkel gresskarsuppe. La barna hakke myk gresskar med stumpe kniver under oppsyn. Smak underveis.', rp: 'Kropp, bevegelse og helse' },
       ]
     },
-    { navn: 'November', sesong: 'høst', icon: '🕯️', sesongKlasse: 'sesong-host',
+    { navn: 'November', sesong: 'høst', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-2 2.5-2 5s2 3.5 2 3.5 2-1 2-3.5S12 2 12 2z"/><rect x="9" y="10" width="6" height="12" rx="1"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`, sesongKlasse: 'sesong-host',
       merkedager: ['Mørketid (stadig kortere dager)', 'Advent nærmer seg'],
       aktiviteter: [
         { kat: 'forming', tittel: 'Lyslykt til advent', beskr: 'Lag lyslykter av glass, silkepapir og lim. Heng opp eller still på vinduet. Lyser opp mørketiden.', rp: 'Kunst, kultur og kreativitet' },
@@ -304,7 +309,7 @@
         { kat: 'mat', tittel: 'Varm suppe og suppebaking', beskr: 'Lag varm grønnsakssuppe og brød fra bunnen. La barna elte deig og forme brød selv.', rp: 'Kropp, bevegelse og helse' },
       ]
     },
-    { navn: 'Desember', sesong: 'vinter', icon: '🎄', sesongKlasse: 'sesong-vinter',
+    { navn: 'Desember', sesong: 'vinter', icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 5,17 19,17"/><polygon points="12,6 7,17 17,17"/><line x1="10" y1="22" x2="14" y2="22"/><line x1="12" y1="17" x2="12" y2="22"/><circle cx="12" cy="10" r="1" fill="currentColor"/></svg>`, sesongKlasse: 'sesong-vinter',
       merkedager: ['1. advent', 'Lucia (13. des)', 'Julaftan (24. des)'],
       aktiviteter: [
         { kat: 'tradisjon', tittel: 'Adventskalender', beskr: 'Lag en felles adventskalender med oppgaver, aktiviteter eller godteri. Barna bytter på å åpne luken.', rp: 'Etikk, religion og filosofi' },
@@ -361,7 +366,7 @@
     const m = maaneder[aktivMaaned];
     const merkedagerHtml = m.merkedager.map(d => `<span class="merkedag-pill">${d}</span>`).join('');
     document.getElementById('maanedHeader').innerHTML = `
-      <div class="maaned-icon">${m.icon}</div>
+      <div class="maaned-icon ${m.sesongKlasse}">${m.icon}</div>
       <div class="maaned-info">
         <h2>${m.navn}</h2>
         <span class="sesong-tag ${m.sesongKlasse}">${m.sesong.charAt(0).toUpperCase() + m.sesong.slice(1)}</span>
