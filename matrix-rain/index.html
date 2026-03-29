@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrix Rain</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #070e09;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #canvas {
+      display: block;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+    }
+
+    /* ── Atmosphere overlays ── */
+    #scanlines {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px, transparent 2px,
+        rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px
+      );
+      pointer-events: none;
+      z-index: 50;
+      opacity: 1;
+      transition: opacity 0.3s;
+    }
+    #vignette {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.75) 100%);
+      pointer-events: none;
+      z-index: 51;
+    }
+
+    /* ── Corner buttons (settings + fullscreen) ── */
+    #settings-btn, #fs-btn {
+      position: fixed;
+      top: 11px;
+      z-index: 200;
+      width: 22px; height: 22px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      opacity: 0.28;
+      transition: opacity 0.2s;
+    }
+    #settings-btn { left: 11px; }
+    #fs-btn       { left: 40px; }
+    #settings-btn:hover, #fs-btn:hover { opacity: 0.85; }
+    #settings-btn svg, #fs-btn svg {
+      width: 16px; height: 16px;
+      fill: #00dd44;
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    #settings-btn.active { opacity: 0.85; }
+    #settings-btn.active svg { transform: rotate(55deg); }
+
+    /* ── Settings panel ── */
+    #panel {
+      position: fixed;
+      top: 0; left: 0;
+      width: 295px;
+      height: 100vh;
+      background: rgba(0, 7, 0, 0.97);
+      border-right: 1px solid rgba(0, 180, 0, 0.18);
+      box-shadow: 6px 0 40px rgba(0, 0, 0, 0.7);
+      transform: translateX(-100%);
+      transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 199;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 68px 22px 32px;
+      font-family: 'Courier New', 'Lucida Console', monospace;
+      color: #00bb00;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0,180,0,0.2) transparent;
+    }
+    #panel::-webkit-scrollbar { width: 3px; }
+    #panel::-webkit-scrollbar-thumb { background: rgba(0,180,0,0.25); border-radius: 2px; }
+    #panel.open { transform: translateX(0); }
+
+    .panel-header {
+      font-size: 0.72rem;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #00ff55;
+      text-shadow: 0 0 14px rgba(0,255,80,0.7);
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(0,255,80,0.12);
+    }
+
+    /* ── Divider ── */
+    .sep {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,180,0,0.22), transparent);
+      margin: 13px 0;
+    }
+
+    /* ── Section label ── */
+    .sec-lbl {
+      font-size: 0.61rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(0, 160, 0, 0.55);
+      margin-bottom: 9px;
+      margin-top: 2px;
+    }
+
+    /* ── Slider control ── */
+    .ctrl { margin-bottom: 15px; }
+
+    .ctrl-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .ctrl-name {
+      font-size: 0.67rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(0, 175, 0, 0.8);
+    }
+    .ctrl-val {
+      font-size: 0.7rem;
+      color: #00ff66;
+      letter-spacing: 0.5px;
+      min-width: 56px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 2px;
+      background: rgba(0, 170, 0, 0.2);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #00dd44;
+      box-shadow: 0 0 9px rgba(0,255,80,0.75);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.25); }
+    input[type="range"]::-moz-range-thumb {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #00dd44;
+      box-shadow: 0 0 9px rgba(0,255,80,0.75);
+      border: none;
+      cursor: pointer;
+    }
+
+    /* ── Color swatches ── */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .swatch {
+      height: 36px;
+      border-radius: 7px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .swatch:hover { transform: scale(1.07); }
+    .swatch.active {
+      border-color: rgba(255,255,255,0.88);
+      box-shadow: 0 0 12px rgba(255,255,255,0.25);
+    }
+    .swatch-name {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      font-size: 0.48rem;
+      letter-spacing: 0.5px;
+      text-align: center;
+      padding: 2px 1px;
+      background: rgba(0,0,0,0.6);
+      color: rgba(255,255,255,0.75);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .swatch:hover .swatch-name { opacity: 1; }
+
+    /* ── Character set pills ── */
+    .pill-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .pill {
+      padding: 5px 12px;
+      font-size: 0.67rem;
+      letter-spacing: 1px;
+      border: 1px solid rgba(0, 150, 0, 0.3);
+      background: rgba(0, 35, 0, 0.4);
+      color: rgba(0, 155, 0, 0.8);
+      cursor: pointer;
+      border-radius: 5px;
+      transition: all 0.2s;
+      font-family: inherit;
+      text-transform: uppercase;
+    }
+    .pill:hover, .pill.active {
+      background: rgba(0, 70, 0, 0.6);
+      border-color: #00cc44;
+      color: #00ff66;
+      box-shadow: 0 0 8px rgba(0, 210, 0, 0.2);
+    }
+
+    /* ── Toggle rows ── */
+    .tog-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 11px;
+    }
+    .tog-lbl {
+      font-size: 0.67rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(0, 175, 0, 0.8);
+    }
+    .switch {
+      width: 40px; height: 20px;
+      background: rgba(0, 50, 0, 0.5);
+      border: 1px solid rgba(0, 130, 0, 0.35);
+      border-radius: 10px;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .switch::after {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: rgba(0, 120, 0, 0.7);
+      top: 2px; left: 2px;
+      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
+    }
+    .switch.on {
+      background: rgba(0, 90, 0, 0.6);
+      border-color: #00cc44;
+      box-shadow: 0 0 9px rgba(0,210,0,0.22);
+    }
+    .switch.on::after {
+      transform: translateX(20px);
+      background: #00ff66;
+      box-shadow: 0 0 7px rgba(0,255,100,0.75);
+    }
+
+    /* ── Keyboard hint ── */
+    .keyhint {
+      font-size: 0.58rem;
+      letter-spacing: 1px;
+      color: rgba(0, 120, 0, 0.45);
+      margin-top: 18px;
+      line-height: 1.7;
+    }
+    .key {
+      display: inline-block;
+      padding: 1px 5px;
+      border: 1px solid rgba(0,130,0,0.35);
+      border-radius: 3px;
+      font-size: 0.56rem;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+<div id="scanlines"></div>
+<div id="vignette"></div>
+<!-- Settings toggle -->
+<button id="settings-btn" title="Innstillinger (S)">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+  </svg>
+</button>
+
+<!-- Fullscreen button -->
+<button id="fs-btn" title="Fullskjerm (F)">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+  </svg>
+</button>
+
+<!-- Settings panel -->
+<div id="panel">
+  <div class="panel-header">[ Matrix Rain ]</div>
+
+  <!-- Speed -->
+  <div class="ctrl">
+    <div class="ctrl-row">
+      <span class="ctrl-name">Hastighet</span>
+      <span class="ctrl-val" id="lbl-speed">1.0×</span>
+    </div>
+    <input type="range" id="sld-speed" min="1" max="50" value="10" step="1">
+  </div>
+
+  <!-- Speed variation -->
+  <div class="ctrl">
+    <div class="ctrl-row">
+      <span class="ctrl-name">Hastighetsvariasjon</span>
+      <span class="ctrl-val" id="lbl-speedvar">Middels</span>
+    </div>
+    <input type="range" id="sld-speedvar" min="0" max="10" value="5" step="1">
+  </div>
+
+  <!-- Bloom -->
+  <div class="ctrl">
+    <div class="ctrl-row">
+      <span class="ctrl-name">Bloom</span>
+      <span class="ctrl-val" id="lbl-bloom">Av</span>
+    </div>
+    <input type="range" id="sld-bloom" min="0" max="10" value="0" step="1">
+  </div>
+
+  <!-- Density -->
+  <div class="ctrl">
+    <div class="ctrl-row">
+      <span class="ctrl-name">Tetthet</span>
+      <span class="ctrl-val" id="lbl-density">Normal</span>
+    </div>
+    <input type="range" id="sld-density" min="10" max="50" value="14" step="1">
+  </div>
+
+  <!-- Font size -->
+  <div class="ctrl">
+    <div class="ctrl-row">
+      <span class="ctrl-name">Skriftstørrelse</span>
+      <span class="ctrl-val" id="lbl-size">16px</span>
+    </div>
+    <input type="range" id="sld-size" min="8" max="36" value="16" step="1">
+  </div>
+
+  <!-- Trail length -->
+  <div class="ctrl">
+    <div class="ctrl-row">
+      <span class="ctrl-name">Sporlengde</span>
+      <span class="ctrl-val" id="lbl-trail">20</span>
+    </div>
+    <input type="range" id="sld-trail" min="3" max="60" value="20" step="1">
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- Color scheme -->
+  <div class="sec-lbl">Fargeskjema</div>
+  <div class="swatch-grid">
+    <div class="swatch active" data-scheme="green"
+      style="background:linear-gradient(135deg,#001800,#00ff44)">
+      <span class="swatch-name">Grønn</span></div>
+    <div class="swatch" data-scheme="cyan"
+      style="background:linear-gradient(135deg,#001818,#00ffee)">
+      <span class="swatch-name">Cyan</span></div>
+    <div class="swatch" data-scheme="red"
+      style="background:linear-gradient(135deg,#1a0000,#ff3300)">
+      <span class="swatch-name">Rød</span></div>
+    <div class="swatch" data-scheme="amber"
+      style="background:linear-gradient(135deg,#1a0e00,#ffaa00)">
+      <span class="swatch-name">Gull</span></div>
+    <div class="swatch" data-scheme="purple"
+      style="background:linear-gradient(135deg,#0e001a,#cc00ff)">
+      <span class="swatch-name">Lilla</span></div>
+    <div class="swatch" data-scheme="blue"
+      style="background:linear-gradient(135deg,#00001a,#0088ff)">
+      <span class="swatch-name">Blå</span></div>
+    <div class="swatch" data-scheme="white"
+      style="background:linear-gradient(135deg,#111,#eee)">
+      <span class="swatch-name">Hvit</span></div>
+    <div class="swatch" data-scheme="rainbow"
+      style="background:linear-gradient(135deg,#f00 0%,#ff0 20%,#0f0 40%,#0ff 60%,#00f 80%,#f0f 100%)">
+      <span class="swatch-name">Regnbue</span></div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- Character set -->
+  <div class="sec-lbl">Tegnsett</div>
+  <div class="pill-grid">
+    <button class="pill active" data-cs="katakana">カナ</button>
+    <button class="pill" data-cs="latin">ABC</button>
+    <button class="pill" data-cs="binary">01</button>
+    <button class="pill" data-cs="nums">123</button>
+    <button class="pill" data-cs="symbols">!@#</button>
+    <button class="pill" data-cs="mixed">MIX</button>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- Toggles -->
+  <div class="tog-row">
+    <span class="tog-lbl">Glødeffekt</span>
+    <div class="switch on" id="sw-glow"></div>
+  </div>
+  <div class="tog-row">
+    <span class="tog-lbl">Tegn-flimmer</span>
+    <div class="switch on" id="sw-flicker"></div>
+  </div>
+  <div class="tog-row">
+    <span class="tog-lbl">Lyst hodetegn</span>
+    <div class="switch on" id="sw-brighthead"></div>
+  </div>
+  <div class="tog-row">
+    <span class="tog-lbl">Skannelinjer</span>
+    <div class="switch on" id="sw-scanlines"></div>
+  </div>
+  <div class="tog-row">
+    <span class="tog-lbl">Vignettering</span>
+    <div class="switch on" id="sw-vignette"></div>
+  </div>
+  <div class="tog-row">
+    <span class="tog-lbl">Matrix-sitater</span>
+    <div class="switch on" id="sw-quotes"></div>
+  </div>
+
+  <div class="keyhint">
+    <span class="key">S</span> Innstillinger &nbsp;
+    <span class="key">F</span> Fullskjerm &nbsp;
+    <span class="key">Space</span> Pause
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  MATRIX RAIN — Engine
+// ═══════════════════════════════════════════════════
+
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+
+// ─── Live config ─────────────────────────────────
+const C = {
+  speed:      1.0,
+  density:    1.4,
+  fontSize:   16,
+  trailLen:   20,
+  scheme:     'green',
+  charSet:    'katakana',
+  glow:       true,
+  speedVar:   0.5,   // 0 = uniform, 1 = extreme variation
+  flicker:    true,
+  brightHead: true,
+  bloom:      0,     // 0 = none, 1 = max
+  quotes:     true,
+  bgColor:    '#070e09', // background fill — very dark forest green (matches user's reference)
+  paused:     false,
+};
+
+// ─── Character sets ──────────────────────────────
+const CHARSETS = {
+  katakana: 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンヴァィゥェォ',
+  latin:    'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  binary:   '01',
+  nums:     '0123456789',
+  symbols:  '!@#$%^&*<>{}[]|;:,./\\~`=+-_',
+  mixed:    'アイウエABCDEF0123456789!@#$%^<>{}[]',
+};
+
+// ─── Color schemes ───────────────────────────────
+// head=leading char, bright=2nd char, mid=trail top, dark=trail bottom, glowC=glow color
+// dark = trail-tail colour; blended toward bgColor so trails fade into the background
+const SCHEMES = {
+  green:   { head:'#e6ffe6', bright:'#99ffaa', mid:'#00ee44', dark:'#060d08', glowC:'#00ff55' },
+  cyan:    { head:'#e0ffff', bright:'#99ffee', mid:'#00ddbb', dark:'#060e0d', glowC:'#00ffdd' },
+  red:     { head:'#ffe8e0', bright:'#ffaa88', mid:'#ee2200', dark:'#0d0706', glowC:'#ff4422' },
+  amber:   { head:'#fff8e0', bright:'#ffdd88', mid:'#ee9900', dark:'#0c0a06', glowC:'#ffbb00' },
+  purple:  { head:'#f0e0ff', bright:'#dd99ff', mid:'#aa00ee', dark:'#0a0609', glowC:'#cc00ff' },
+  blue:    { head:'#e0eeff', bright:'#88aaff', mid:'#0055ee', dark:'#06070d', glowC:'#0088ff' },
+  white:   { head:'#ffffff', bright:'#dddddd', mid:'#888888', dark:'#0a0d0b', glowC:'#ffffff' },
+  rainbow: null,
+};
+
+// ─── Helpers ─────────────────────────────────────
+function rndChar() {
+  const s = CHARSETS[C.charSet];
+  return s[Math.floor(Math.random() * s.length)];
+}
+
+function hexToRgb(hex) {
+  return [
+    parseInt(hex.slice(1,3), 16),
+    parseInt(hex.slice(3,5), 16),
+    parseInt(hex.slice(5,7), 16),
+  ];
+}
+
+function lerpColor(hexA, hexB, t) {
+  const [ar,ag,ab] = hexToRgb(hexA);
+  const [br,bg,bb] = hexToRgb(hexB);
+  const c = v => Math.max(0, Math.min(255, Math.round(v)));
+  return `rgb(${c(ar+(br-ar)*t)},${c(ag+(bg-ag)*t)},${c(ab+(bb-ab)*t)})`;
+}
+
+function rainbowColor(hue, i, length) {
+  const t = i / length;
+  const l = Math.max(6, 65 - t * 58);
+  return `hsl(${(hue + i * 11) % 360}, 100%, ${l}%)`;
+}
+
+// ─── Quote state ──────────────────────────────────
+const QS = {
+  phase:        'idle',    // idle | appear | type | hold | fadeout
+  lines:        [],        // text split by \n
+  lineIdx:      0,         // which line is currently active
+  linePhase:    'cursor',  // 'cursor' | 'typing' | 'pause'
+  linePhaseTs:  0,         // when current line sub-phase started
+  typeCount:    [],        // chars visible per line (int[])
+  charOffsets:  [],        // per-line per-char {dx,dy,ds} typewriter jitter
+  alpha:        0,
+  phaseStart:   0,
+  blinkOn:      true,
+  blinkTs:      0,
+  pendingStart: false,
+};
+
+// ─── Stream class ────────────────────────────────
+class Stream {
+  constructor(col) {
+    this.col  = col;
+    this.hue  = Math.random() * 360;
+    this.init(true);
+  }
+
+  get x() {
+    return this.col * Math.round(C.fontSize * C.density);
+  }
+
+  init(scatter = false) {
+    const rows = Math.ceil(canvas.height / C.fontSize);
+    this.head        = scatter
+      ? Math.floor(Math.random() * (rows + C.trailLen)) - C.trailLen
+      : -(C.trailLen + 5 + Math.floor(Math.random() * 20));
+    this.length      = Math.max(4, Math.floor(C.trailLen * (0.45 + Math.random() * 0.7)));
+    // Speed: exponential spread — speedVar 0 = all 1.0x, speedVar 1 = range ~0.25x–4x
+    this.spd         = C.speedVar > 0
+      ? Math.pow(4, (Math.random() - 0.5) * C.speedVar * 2)
+      : 1.0;
+    this.chars       = Array.from({ length: this.length + 10 }, rndChar);
+    this.lastStep    = 0;
+    this.lastFlicker = 0;
+  }
+
+  update(ts) {
+    // ── Advance head (tied to this stream's own speed) ──
+    const stepMs = 1000 / (C.speed * 10 * this.spd);
+    if (ts - this.lastStep >= stepMs) {
+      this.head++;
+      this.lastStep = ts;
+    }
+
+    // ── Character flickering (independent of head speed, ~every 35ms) ──
+    // This is what makes every character constantly morph — the key Matrix look.
+    if (C.flicker && ts - this.lastFlicker >= 35) {
+      const n = Math.max(2, Math.floor(this.chars.length * 0.35));
+      for (let k = 0; k < n; k++) {
+        this.chars[Math.floor(Math.random() * this.chars.length)] = rndChar();
+      }
+      this.lastFlicker = ts;
+    }
+
+    // Reset when full stream has passed the bottom
+    if ((this.head - this.length) * C.fontSize > canvas.height) {
+      this.init(false);
+      this.hue = Math.random() * 360;
+    }
+  }
+
+  draw() {
+    const fs  = C.fontSize;
+    const x   = this.x;
+    const sch = SCHEMES[C.scheme];
+
+    for (let i = 0; i <= this.length; i++) {
+      const cy = this.head - i;
+      const py = cy * fs;
+
+      if (py + fs < -fs || py > canvas.height + fs) continue;
+
+      const ch = this.chars[i % this.chars.length];
+      const t  = i / this.length; // 0 = head, 1 = tail
+
+      ctx.shadowBlur = 0;
+
+      if (i === 0 && C.brightHead) {
+        if (C.glow && sch) { ctx.shadowBlur = 22; ctx.shadowColor = sch.glowC; }
+        else if (C.glow)   { ctx.shadowBlur = 22; ctx.shadowColor = '#fff'; }
+        ctx.fillStyle = sch ? sch.head : '#ffffff';
+
+      } else if (i <= 2 && C.brightHead) {
+        if (C.glow && sch) { ctx.shadowBlur = 11; ctx.shadowColor = sch.glowC; }
+        ctx.fillStyle = sch ? sch.bright : '#cccccc';
+
+      } else {
+        if (C.scheme === 'rainbow') {
+          ctx.fillStyle = rainbowColor(this.hue, i, this.length);
+        } else {
+          ctx.fillStyle = lerpColor(sch.mid, sch.dark, Math.pow(t, 0.75));
+        }
+      }
+
+      ctx.fillText(ch, x, py);
+    }
+
+    ctx.shadowBlur = 0;
+  }
+}
+
+// ─── Bloom canvas ────────────────────────────────
+const bloomCanvas = document.createElement('canvas');
+const bloomCtx    = bloomCanvas.getContext('2d');
+
+// ─── Setup & resize ──────────────────────────────
+let streams = [];
+
+function colW() {
+  return Math.max(1, Math.round(C.fontSize * C.density));
+}
+
+function setup() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  bloomCanvas.width  = canvas.width;
+  bloomCanvas.height = canvas.height;
+  rebuildStreams();
+}
+
+function rebuildStreams() {
+  const needed = Math.ceil(canvas.width / colW()) + 2;
+  // Grow
+  while (streams.length < needed) {
+    streams.push(new Stream(streams.length));
+  }
+  // Shrink
+  streams.length = needed;
+  // Re-index columns (in case density/size changed)
+  streams.forEach((s, i) => { s.col = i; });
+}
+
+window.addEventListener('resize', setup);
+setup();
+
+// ─── Render loop ─────────────────────────────────
+function render(ts) {
+  requestAnimationFrame(render);
+
+  if (C.paused) return;
+
+  ctx.shadowBlur = 0;
+  ctx.fillStyle  = C.bgColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.font         = `bold ${C.fontSize}px 'Courier New', monospace`;
+  ctx.textBaseline = 'top';
+
+  for (const s of streams) {
+    s.update(ts);
+    s.draw();
+  }
+
+  // ── Draw quote on canvas (gets bloom naturally) ──
+  updateQuote(ts);
+  drawCanvasQuote();
+
+  // ── Bloom post-process ──
+  if (C.bloom > 0) {
+    const blurPx = Math.round(C.bloom * 18);
+
+    // Pass 1: wide blur for soft glow spread
+    bloomCtx.clearRect(0, 0, bloomCanvas.width, bloomCanvas.height);
+    bloomCtx.filter = `blur(${blurPx}px)`;
+    bloomCtx.drawImage(canvas, 0, 0);
+    bloomCtx.filter = 'none';
+
+    ctx.globalCompositeOperation = 'screen';
+    ctx.globalAlpha = 0.3 + C.bloom * 0.55;
+    ctx.drawImage(bloomCanvas, 0, 0);
+
+    // Pass 2 (above ~40%): tighter bright core halo
+    if (C.bloom > 0.35) {
+      bloomCtx.clearRect(0, 0, bloomCanvas.width, bloomCanvas.height);
+      bloomCtx.filter = `blur(${Math.round(blurPx * 0.28)}px)`;
+      bloomCtx.drawImage(canvas, 0, 0);
+      bloomCtx.filter = 'none';
+      ctx.globalAlpha = (C.bloom - 0.35) * 0.7;
+      ctx.drawImage(bloomCanvas, 0, 0);
+    }
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1.0;
+  }
+}
+
+requestAnimationFrame(render);
+
+// ═══════════════════════════════════════════════════
+//  PERSISTENCE
+// ═══════════════════════════════════════════════════
+
+const STORE_KEY = 'matrix-rain-v1';
+const SAVEABLE  = ['speed','density','fontSize','trailLen','scheme','charSet',
+                   'glow','speedVar','flicker','brightHead','bloom','quotes',
+                   'bgColor','_scanlines','_vignette'];
+
+function saveSettings() {
+  const obj = {};
+  SAVEABLE.forEach(k => { obj[k] = C[k]; });
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(obj)); } catch(e) {}
+}
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    SAVEABLE.forEach(k => {
+      if (saved[k] !== undefined) C[k] = saved[k];
+    });
+  } catch(e) {}
+}
+
+loadSettings();   // apply before UI is wired up
+
+// ═══════════════════════════════════════════════════
+//  MATRIX QUOTES — canvas-based (gets bloom, clears rain)
+// ═══════════════════════════════════════════════════
+
+const QUOTES = [
+  "Wake up, Neo...",
+  "The Matrix has you.",
+  "Follow the white rabbit.",
+  "There is no spoon.",
+  "I know kung fu.",
+  "What is the Matrix?",
+  "Unfortunately, no one can be told\nwhat the Matrix is.\nYou have to see it for yourself.",
+  "You take the blue pill — the story ends.\nYou take the red pill — you stay in Wonderland.",
+  "I'm trying to free your mind, Neo.\nBut I can only show you the door.\nYou're the one that has to walk through it.",
+  "Everything that has a beginning\nhas an end.",
+  "Never send a human to do a machine's job.",
+  "Choice. The problem is choice.",
+  "We're not here because we're free.\nWe're here because we're not free.",
+  "Ignorance is bliss.",
+  "I can't go back, can I?",
+  "He is the One.",
+  "Welcome... to the real world.",
+  "My name is Neo.",
+];
+
+let _lastQuoteIdx = -1;
+
+// Timing constants
+const APPEAR_MS      = 220;   // background fade-in (ms)
+const CURSOR_BLINK   = 460;   // ms per blink half-cycle
+const LINE_CURSOR_MS = 1500;  // cursor blink time before each line types
+const CHAR_DELAY     = 44;    // ms per character
+const LINE_PAUSE_MS  = 380;   // pause after a line finishes before next cursor
+
+function scheduleQuote() {
+  const wait = 20000 + Math.random() * 30000;
+  setTimeout(() => { QS.pendingStart = true; }, wait);
+}
+
+// Called every frame by render loop
+function updateQuote(ts) {
+  if (QS.pendingStart && QS.phase === 'idle') {
+    QS.pendingStart  = false;
+    if (!C.quotes) { scheduleQuote(); return; }
+
+    let idx;
+    do { idx = Math.floor(Math.random() * QUOTES.length); } while (idx === _lastQuoteIdx && QUOTES.length > 1);
+    _lastQuoteIdx   = idx;
+    QS.lines        = QUOTES[idx].split('\n');
+    QS.typeCount    = QS.lines.map(() => 0);
+    // Pre-compute per-character typewriter jitter (fixed per quote, not per-frame)
+    QS.charOffsets  = QS.lines.map(line =>
+      Array.from(line).map(() => ({
+        dx: (Math.random() - 0.5) * 0.6,   // ±0.3 px — barely perceptible
+        dy: (Math.random() - 0.5) * 0.18,  // ±0.09 px — almost no vertical drift
+        ds: (Math.random() - 0.5) * 0.5,   // ±0.25 px spacing
+      }))
+    );
+    QS.sx = null;   // randomised on first draw
+    QS.lineIdx      = 0;
+    QS.linePhase    = 'cursor';
+    QS.linePhaseTs  = ts;
+    QS.alpha        = 0;
+    QS.blinkOn      = true;
+    QS.blinkTs      = ts;
+    QS.phase        = 'appear';
+    QS.phaseStart   = ts;
+  }
+
+  switch (QS.phase) {
+
+    case 'appear': {
+      QS.alpha = Math.min(1, (ts - QS.phaseStart) / APPEAR_MS);
+      if (QS.alpha >= 1) {
+        QS.phase       = 'type';
+        QS.phaseStart  = ts;
+        QS.lineIdx     = 0;
+        QS.linePhase   = 'cursor';
+        QS.linePhaseTs = ts;
+        QS.blinkOn     = true;
+        QS.blinkTs     = ts;
+      }
+      break;
+    }
+
+    case 'type': {
+      switch (QS.linePhase) {
+
+        case 'cursor': {
+          // Blink the block cursor before this line starts typing
+          if (ts - QS.blinkTs >= CURSOR_BLINK) { QS.blinkOn = !QS.blinkOn; QS.blinkTs = ts; }
+          if (ts - QS.linePhaseTs >= LINE_CURSOR_MS) {
+            QS.linePhase   = 'typing';
+            QS.linePhaseTs = ts;
+            QS.blinkOn     = false;
+          }
+          break;
+        }
+
+        case 'typing': {
+          const max     = QS.lines[QS.lineIdx].length;
+          const elapsed = ts - QS.linePhaseTs;
+          QS.typeCount[QS.lineIdx] = Math.min(max, Math.floor(elapsed / CHAR_DELAY));
+          if (QS.typeCount[QS.lineIdx] >= max) {
+            QS.linePhase   = 'pause';
+            QS.linePhaseTs = ts;
+          }
+          break;
+        }
+
+        case 'pause': {
+          if (ts - QS.linePhaseTs >= LINE_PAUSE_MS) {
+            if (QS.lineIdx + 1 < QS.lines.length) {
+              // Move to next line with its own cursor
+              QS.lineIdx++;
+              QS.linePhase   = 'cursor';
+              QS.linePhaseTs = ts;
+              QS.blinkOn     = true;
+              QS.blinkTs     = ts;
+            } else {
+              // All lines done
+              QS.phase      = 'hold';
+              QS.phaseStart = ts;
+            }
+          }
+          break;
+        }
+      }
+      break;
+    }
+
+    case 'hold': {
+      if (ts - QS.phaseStart >= 4800) { QS.phase = 'fadeout'; QS.phaseStart = ts; }
+      break;
+    }
+
+    case 'fadeout': {
+      QS.alpha = Math.max(0, 1 - (ts - QS.phaseStart) / 850);
+      if (QS.alpha <= 0) {
+        QS.phase = 'idle';
+        scheduleQuote();
+      }
+      break;
+    }
+  }
+}
+
+// Draws the quote directly onto the main canvas (participates in bloom)
+function drawCanvasQuote() {
+  if (QS.phase === 'idle' || QS.alpha <= 0) return;
+
+  // Slightly smaller than stream chars — feels like a separate terminal inset
+  const fs    = Math.round(C.fontSize * 0.88);
+  const lineH = Math.round(fs * 1.55);
+  const sch   = SCHEMES[C.scheme];
+  const glowC = sch ? sch.glowC : '#00ff55';
+  const midC  = sch ? sch.mid   : '#00ee44';
+  const headC = sch ? sch.head  : '#e6ffe6';
+
+  ctx.save();
+  ctx.font         = `bold ${fs}px 'Courier New', monospace`;
+  ctx.textBaseline = 'top';
+
+  const charW  = ctx.measureText('M').width;
+  const maxLen = Math.max(...QS.lines.map(l => l.length));
+  const totalH = QS.lines.length * lineH;
+  const padX   = Math.round(fs * 0.9);
+  const padY   = Math.round(fs * 0.5);
+  const boxW   = Math.round(maxLen * charW + padX * 2);
+  const boxH   = totalH + padY * 2;
+
+  // Pick a random on-screen position once per quote, reuse every frame
+  if (QS.sx === null) {
+    const mX = Math.round(fs * 2);
+    const mY = Math.round(canvas.height * 0.12);
+    QS.sx = Math.round(mX + Math.random() * Math.max(0, canvas.width  - boxW - mX * 2));
+    QS.sy = Math.round(mY + Math.random() * Math.max(0, canvas.height * 0.74 - boxH));
+  }
+  const sx    = QS.sx;
+  const sy    = QS.sy;
+  const textX = sx + padX;
+  const textY = sy + padY;
+
+  ctx.globalAlpha = QS.alpha;
+
+  // ── Dark background — plain rect, no filter ──
+  ctx.shadowBlur  = 0;
+  ctx.globalAlpha = QS.alpha * 0.78;
+  ctx.fillStyle   = '#050b07';
+  ctx.fillRect(sx, sy, boxW, boxH);
+  ctx.globalAlpha = QS.alpha;
+
+  // ── Cursor: blinking block before each line ──
+  if (QS.phase === 'type' && QS.linePhase === 'cursor' && QS.blinkOn) {
+    ctx.shadowBlur  = C.glow ? 12 : 0;
+    ctx.shadowColor = glowC;
+    ctx.fillStyle   = midC;
+    ctx.fillRect(textX, textY + QS.lineIdx * lineH, charW, fs);
+  }
+
+  // ── Typed text — drawn char-by-char with typewriter jitter ──
+  if (QS.typeCount && QS.typeCount.length && QS.charOffsets && QS.charOffsets.length) {
+    ctx.shadowBlur  = C.glow ? 6 : 0;   // low — bloom handles the glow
+    ctx.shadowColor = glowC;
+    ctx.fillStyle   = headC;
+
+    for (let li = 0; li < QS.lines.length; li++) {
+      const n       = QS.typeCount[li];
+      if (n === 0) continue;
+      const line    = QS.lines[li];
+      const offsets = QS.charOffsets[li] || [];
+      const baseY   = textY + li * lineH;
+      let   x       = textX;
+
+      for (let ci = 0; ci < n; ci++) {
+        const off = offsets[ci] || { dx: 0, dy: 0, ds: 0 };
+        ctx.fillText(line[ci], x + off.dx, baseY + off.dy);
+        x += charW + off.ds;
+      }
+    }
+  }
+
+  ctx.restore();
+}
+
+// First quote after 18–38 s
+setTimeout(() => { QS.pendingStart = true; }, 18000 + Math.random() * 20000);
+
+// ═══════════════════════════════════════════════════
+//  SETTINGS UI
+// ═══════════════════════════════════════════════════
+
+const panel      = document.getElementById('panel');
+const settingsBtn = document.getElementById('settings-btn');
+const scanlines  = document.getElementById('scanlines');
+const vignette   = document.getElementById('vignette');
+
+// ─── Panel toggle ────────────────────────────────
+function openPanel()  { panel.classList.add('open'); settingsBtn.classList.add('active'); }
+function closePanel() { panel.classList.remove('open'); settingsBtn.classList.remove('active'); }
+function togglePanel(){ panel.classList.contains('open') ? closePanel() : openPanel(); }
+
+settingsBtn.addEventListener('click', e => { e.stopPropagation(); togglePanel(); });
+
+document.addEventListener('click', e => {
+  if (!panel.contains(e.target) && !settingsBtn.contains(e.target)) {
+    closePanel();
+  }
+});
+
+// ─── Keyboard shortcuts ──────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  switch (e.key.toLowerCase()) {
+    case 's': togglePanel(); break;
+    case 'f': toggleFS(); break;
+    case ' ':
+      e.preventDefault();
+      C.paused = !C.paused;
+      break;
+    case 'escape': closePanel(); break;
+  }
+});
+
+// ─── Fullscreen ──────────────────────────────────
+const fsBtn = document.getElementById('fs-btn');
+
+function toggleFS() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+fsBtn.addEventListener('click', toggleFS);
+
+// ─── Slider helper ───────────────────────────────
+function mkSlider(id, lblId, readFn, writeFn, fmtFn, reinit = false) {
+  const sld = document.getElementById(id);
+  const lbl = document.getElementById(lblId);
+
+  sld.value = readFn();
+  lbl.textContent = fmtFn(sld.value);
+
+  sld.addEventListener('input', () => {
+    writeFn(sld.value);
+    lbl.textContent = fmtFn(sld.value);
+    if (reinit) rebuildStreams();
+    saveSettings();
+  });
+}
+
+mkSlider(
+  'sld-speed', 'lbl-speed',
+  () => Math.round(C.speed * 10),
+  v  => { C.speed = +v / 10; },
+  v  => (+v / 10).toFixed(1) + '×'
+);
+
+mkSlider(
+  'sld-speedvar', 'lbl-speedvar',
+  () => Math.round(C.speedVar * 10),
+  v  => {
+    C.speedVar = +v / 10;
+    // Reassign speeds to all streams immediately
+    streams.forEach(s => {
+      s.spd = C.speedVar > 0
+        ? Math.pow(4, (Math.random() - 0.5) * C.speedVar * 2)
+        : 1.0;
+    });
+  },
+  v  => {
+    const n = +v;
+    if (n === 0) return 'Uniform';
+    if (n <= 2)  return 'Lav';
+    if (n <= 5)  return 'Middels';
+    if (n <= 8)  return 'Høy';
+    return 'Ekstrem';
+  }
+);
+
+mkSlider(
+  'sld-bloom', 'lbl-bloom',
+  () => Math.round(C.bloom * 10),
+  v  => { C.bloom = +v / 10; },
+  v  => {
+    const n = +v;
+    if (n === 0) return 'Av';
+    if (n <= 2)  return 'Svak';
+    if (n <= 5)  return 'Middels';
+    if (n <= 8)  return 'Sterk';
+    return 'Ekstrem';
+  }
+);
+
+mkSlider(
+  'sld-density', 'lbl-density',
+  () => Math.round(C.density * 10),
+  v  => { C.density = +v / 10; },
+  v  => {
+    const d = +v / 10;
+    if (d < 1.25) return 'Tett';
+    if (d < 1.85) return 'Normal';
+    if (d < 2.75) return 'Luftig';
+    return 'Spredt';
+  },
+  true
+);
+
+mkSlider(
+  'sld-size', 'lbl-size',
+  () => C.fontSize,
+  v  => { C.fontSize = +v; },
+  v  => v + 'px',
+  true
+);
+
+mkSlider(
+  'sld-trail', 'lbl-trail',
+  () => C.trailLen,
+  v  => {
+    C.trailLen = +v;
+    streams.forEach(s => {
+      s.length = Math.max(4, Math.floor(C.trailLen * (0.45 + Math.random() * 0.7)));
+      while (s.chars.length < s.length + 10) s.chars.push(rndChar());
+    });
+  },
+  v  => v + ' rader'
+);
+
+// ─── Color swatches ──────────────────────────────
+document.querySelectorAll('.swatch').forEach(sw => {
+  sw.addEventListener('click', () => {
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+    sw.classList.add('active');
+    C.scheme = sw.dataset.scheme;
+  });
+});
+
+// ─── Character set ───────────────────────────────
+document.querySelectorAll('.pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    C.charSet = btn.dataset.cs;
+    streams.forEach(s => {
+      s.chars = Array.from({ length: s.length + 10 }, rndChar);
+    });
+  });
+});
+
+// ─── Toggle switches ─────────────────────────────
+function mkToggle(id, key, onChangeFn = null) {
+  const sw = document.getElementById(id);
+  sw.addEventListener('click', () => {
+    C[key] = !C[key];
+    sw.classList.toggle('on', C[key]);
+    if (onChangeFn) onChangeFn(C[key]);
+    saveSettings();
+  });
+}
+
+mkToggle('sw-glow',       'glow');
+mkToggle('sw-flicker',    'flicker');
+mkToggle('sw-brighthead', 'brightHead');
+mkToggle('sw-scanlines',  '_scanlines', v => { scanlines.style.opacity = v ? '1' : '0'; });
+mkToggle('sw-vignette',   '_vignette',  v => { vignette.style.opacity  = v ? '1' : '0'; });
+mkToggle('sw-quotes',     'quotes');
+
+// ─── Apply loaded settings to UI ─────────────────
+// Sliders: force their value from C (readFn already does this via mkSlider init)
+// Swatches
+document.querySelectorAll('.swatch').forEach(sw => {
+  sw.classList.toggle('active', sw.dataset.scheme === C.scheme);
+});
+// Pills
+document.querySelectorAll('.pill').forEach(btn => {
+  btn.classList.toggle('active', btn.dataset.cs === C.charSet);
+});
+// Boolean toggles
+[
+  ['sw-glow',       C.glow],
+  ['sw-flicker',    C.flicker],
+  ['sw-brighthead', C.brightHead],
+  ['sw-scanlines',  C._scanlines !== false],
+  ['sw-vignette',   C._vignette  !== false],
+  ['sw-quotes',     C.quotes],
+].forEach(([id, val]) => {
+  document.getElementById(id)?.classList.toggle('on', !!val);
+});
+// Side-effects for DOM-linked toggles
+scanlines.style.opacity = C._scanlines !== false ? '1' : '0';
+vignette.style.opacity  = C._vignette  !== false ? '1' : '0';
+</script>
+</body>
+</html>
